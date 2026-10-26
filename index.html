@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#071018" />
-  <title>SW Analytics - Live Call Operations Dashboard</title>
+  <title>SW Analytics - Call Operations Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
@@ -20,43 +20,51 @@
       --teal: #4ee0c2;
       --teal-2: #1aa88e;
       --gold: #f5c451;
+      --silver: #c9d4e0;
+      --bronze: #d08a4c;
+      --danger: #ff7a90;
       --ok: #5ee4a8;
       --warn: #ffc56e;
       --shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
-      --radius: 18px;
+      --radius: 20px;
       --nav-h: 68px;
     }
 
     * { box-sizing: border-box; }
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      overflow: hidden;
-      background: var(--bg);
-      color: var(--text);
+    html, body { margin: 0; min-height: 100%; }
+    body {
       font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 500px at 10% -10%, rgba(78, 224, 194, 0.16), transparent 55%),
+        radial-gradient(900px 420px at 100% 0%, rgba(245, 196, 81, 0.1), transparent 50%),
+        linear-gradient(180deg, var(--bg) 0%, #08131d 100%);
+      letter-spacing: 0.01em;
     }
 
     button, input, select { font: inherit; color: inherit; }
     a { color: inherit; text-decoration: none; }
 
-    .app {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      height: 100dvh;
+    .shell {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      padding-bottom: 64px;
     }
 
     header.appbar {
-      height: var(--nav-h);
-      min-height: var(--nav-h);
+      position: sticky;
+      top: 0;
       z-index: 20;
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
-      background: rgba(7, 16, 24, 0.92);
+      background: rgba(7, 16, 24, 0.88);
       border-bottom: 1px solid var(--line);
-      padding: 0 20px;
+    }
+
+    .appbar-inner {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      min-height: var(--nav-h);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -88,20 +96,18 @@
       font-size: 16px;
       font-weight: 700;
       letter-spacing: 0.02em;
-      white-space: nowrap;
     }
 
     .brand-text p {
       margin: 2px 0 0;
       color: var(--muted);
       font-size: 12px;
-      white-space: nowrap;
     }
 
-    .nav-center {
+    .nav-actions {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
     }
 
     nav.tabs {
@@ -120,7 +126,7 @@
       font-size: 13px;
       font-weight: 600;
       white-space: nowrap;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.2s ease;
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -133,146 +139,374 @@
     nav.tabs a.active {
       color: #04231d;
       background: var(--teal);
-      box-shadow: 0 2px 8px rgba(78, 224, 194, 0.3);
+      box-shadow: 0 2px 8px rgba(78, 224, 194, 0.25);
     }
 
-    .live-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #04231d;
-      animation: pulse 1.6s infinite ease-in-out;
-    }
-
-    nav.tabs a:not(.active) .live-dot {
-      background: var(--ok);
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(0.7); opacity: 0.5; }
-    }
-
-    .nav-actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .btn-action {
-      background: rgba(16, 34, 50, 0.6);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 7px 12px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--muted);
+    .s3-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      cursor: pointer;
-      transition: all 0.18s ease;
-      white-space: nowrap;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      padding: 7px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(16, 34, 50, 0.5);
+      transition: all 0.2s;
     }
 
-    .btn-action:hover {
+    .s3-badge:hover {
       color: var(--teal);
       border-color: var(--teal);
       background: rgba(78, 224, 194, 0.1);
     }
 
-    .btn-action svg {
-      width: 14px;
-      height: 14px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 2;
+    .hero {
+      display: grid;
+      grid-template-columns: 1.4fr 0.8fr;
+      gap: 18px;
+      padding: 28px 0 18px;
     }
 
-    .viewport {
-      flex: 1;
+    .hero h2 {
+      margin: 0 0 8px;
+      font-size: clamp(26px, 3.8vw, 40px);
+      line-height: 1.15;
+    }
+
+    .hero p { margin: 0; color: var(--muted); max-width: 58ch; font-size: 15px; line-height: 1.5; }
+
+    .status-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .live {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ok);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--ok);
+      box-shadow: 0 0 0 6px rgba(94, 228, 168, 0.16);
+      animation: pulse 1.8s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(0.85); opacity: 0.6; }
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .kpi {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .kpi span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .kpi strong {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 8px 0 20px;
+    }
+
+    .toolbar input, .toolbar select, .toolbar button {
+      background: var(--panel-solid);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 11px 14px;
+      transition: border-color 0.18s ease;
+    }
+
+    .toolbar input { flex: 1; min-width: 220px; }
+    .toolbar input:focus, .toolbar select:focus {
+      outline: none;
+      border-color: var(--teal);
+    }
+
+    .toolbar button {
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+    }
+
+    .toolbar button:hover {
+      border-color: var(--teal);
+      background: rgba(78, 224, 194, 0.12);
+    }
+
+    .podium {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 22px;
+      align-items: stretch;
+    }
+
+    .place {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 20px;
       position: relative;
-      background: var(--bg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+    }
+
+    .place:nth-child(1) {
+      order: 2;
+      transform: translateY(-8px);
+      border-color: rgba(245, 196, 81, 0.45);
+      background: linear-gradient(180deg, rgba(245, 196, 81, 0.08), var(--panel));
+    }
+    .place:nth-child(2) { order: 1; }
+    .place:nth-child(3) { order: 3; }
+
+    .medal {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .gold { background: linear-gradient(135deg, #fce07a, var(--gold)); color: #3d2a00; }
+    .silver { background: linear-gradient(135deg, #f0f4f8, var(--silver)); color: #243040; }
+    .bronze { background: linear-gradient(135deg, #e8a76d, var(--bronze)); color: #2a1608; }
+
+    .place h3 { margin: 0 0 4px; font-size: 16px; font-weight: 600; }
+    .place .id { color: var(--muted); font-size: 12px; margin-bottom: 14px; }
+    .place .score {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--teal);
+    }
+
+    .board {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .board-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(16, 34, 50, 0.4);
+    }
+
+    .board-head h3 { margin: 0; font-size: 16px; font-weight: 600; }
+    .board-head span { color: var(--muted); font-size: 13px; }
+
+    .table-container {
+      overflow-x: auto;
+      max-width: 100%;
+    }
+
+    table.lb {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    table.lb th, table.lb td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      font-size: 14px;
+    }
+
+    table.lb th {
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+      background: rgba(16, 34, 50, 0.6);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    table.lb tr:hover td { background: rgba(78, 224, 194, 0.04); }
+    .mono { font-family: "IBM Plex Mono", monospace; }
+    .right { text-align: right !important; }
+
+    .rank {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: inline-grid;
+      place-items: center;
+      background: rgba(255, 255, 255, 0.06);
+      font-size: 13px;
+      font-weight: 700;
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    .rank-top1 { background: var(--gold); color: #3d2a00; }
+    .rank-top2 { background: var(--silver); color: #243040; }
+    .rank-top3 { background: var(--bronze); color: #2a1608; }
+
+    .fail-pill {
+      display: inline-flex;
+      min-width: 64px;
+      justify-content: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    .ok { background: rgba(94, 228, 168, 0.15); color: var(--ok); }
+    .mid { background: rgba(255, 197, 110, 0.16); color: var(--warn); }
+    .bad { background: rgba(255, 122, 144, 0.18); color: var(--danger); }
+
+    .mobile-list { display: none; }
+
+    .card-row {
+      display: grid;
+      gap: 12px;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .bar {
+      height: 8px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.08);
       overflow: hidden;
     }
 
-    .frame-wrapper {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      width: 100%;
+    .bar > i {
+      display: block;
       height: 100%;
+      background: linear-gradient(90deg, var(--teal-2), var(--teal));
+      border-radius: 99px;
     }
 
-    iframe#dashboard-frame {
-      width: 100%;
-      height: 100%;
-      border: none;
-      background: transparent;
-      opacity: 0;
-      transition: opacity 0.25s ease-in-out;
-    }
-
-    iframe#dashboard-frame.loaded {
-      opacity: 1;
-    }
-
-    .loader {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+    .meta {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
+      justify-content: space-between;
+      gap: 8px;
       color: var(--muted);
-      font-size: 14px;
-      pointer-events: none;
-      transition: opacity 0.2s ease;
+      font-size: 12px;
     }
 
-    .spinner {
-      width: 36px;
-      height: 36px;
-      border: 3px solid rgba(78, 224, 194, 0.15);
-      border-top-color: var(--teal);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+    .empty, .error, .loading {
+      padding: 48px 20px;
+      text-align: center;
+      color: var(--muted);
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    .error { color: var(--danger); }
+
+    footer.note {
+      margin-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 12px;
     }
 
-    .loader.hidden {
-      opacity: 0;
-      visibility: hidden;
+    footer.note a {
+      color: var(--teal);
+      text-decoration: underline;
     }
 
-    @media (max-width: 768px) {
-      header.appbar {
-        height: auto;
-        min-height: auto;
-        padding: 12px 14px;
-        flex-wrap: wrap;
-        gap: 10px;
-      }
+    @media (max-width: 900px) {
+      .hero, .kpis { grid-template-columns: 1fr 1fr; }
+      .place:nth-child(1) { transform: none; }
+    }
 
-      .brand { flex: 1; }
-      .nav-center { order: 3; width: 100%; }
-      nav.tabs { width: 100%; }
-      nav.tabs a { flex: 1; justify-content: center; padding: 8px 12px; }
-      .nav-actions { order: 2; }
-      .btn-text { display: none; }
+    @media (max-width: 720px) {
+      .shell { width: min(100% - 20px, 1180px); }
+      .appbar-inner { width: min(100% - 20px, 1180px); flex-wrap: wrap; padding: 12px 0; }
+      .nav-actions { width: 100%; justify-content: space-between; }
+      nav.tabs { flex: 1; }
+      nav.tabs a { flex: 1; text-align: center; }
+      .hero, .kpis, .podium { grid-template-columns: 1fr; }
+      .place:nth-child(1),
+      .place:nth-child(2),
+      .place:nth-child(3) { order: 0; transform: none; }
+      .toolbar { flex-direction: column; }
+      .toolbar input, .toolbar select, .toolbar button { width: 100%; min-width: 0; }
+      .desktop-table { display: none; }
+      .mobile-list { display: block; }
+      .kpi strong { font-size: 24px; }
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <header class="appbar">
+  <header class="appbar">
+    <div class="appbar-inner">
       <div class="brand">
         <div class="logo">SW</div>
         <div class="brand-text">
@@ -280,107 +514,370 @@
           <p>Call operations leaderboard</p>
         </div>
       </div>
-
-      <div class="nav-center">
-        <nav class="tabs">
-          <a href="#/" id="tab-live" class="active">
-            <span class="live-dot"></span>
-            <span>Daily realtime</span>
-          </a>
-          <a href="#/analytics" id="tab-hist">
-            <span>Historical</span>
-          </a>
-        </nav>
-      </div>
-
       <div class="nav-actions">
-        <button id="btn-refresh" class="btn-action" title="Refresh live feed">
-          <svg viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-          <span class="btn-text">Refresh</span>
-        </button>
-        <a id="btn-s3" class="btn-action" href="https://dat-tools.s3.amazonaws.com/swlogs/realtime_SF.html" target="_blank" rel="noopener" title="Open direct in S3">
-          <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
-          <span class="btn-text">Open S3 ↗</span>
-        </a>
+        <nav class="tabs">
+          <a href="#/" id="tab-live">Daily realtime</a>
+          <a href="#/analytics" id="tab-hist">Historical</a>
+        </nav>
+        <a id="direct-s3-link" class="s3-badge" href="https://dat-tools.s3.amazonaws.com/swlogs/realtime_SF.html" target="_blank" rel="noopener">Open S3 ↗</a>
       </div>
-    </header>
+    </div>
+  </header>
 
-    <main class="viewport">
-      <div id="loader" class="loader">
-        <div class="spinner"></div>
-        <span id="loader-text">Connecting to live S3 stream…</span>
+  <main class="shell">
+    <section class="hero">
+      <div>
+        <h2 id="page-title">Daily realtime</h2>
+        <p id="page-copy">Live agent ranking from today’s Softphone logs. Ranked by successful call count, with failure rate on every row.</p>
       </div>
-      <div class="frame-wrapper">
-        <iframe
-          id="dashboard-frame"
-          title="SW Analytics Dashboard"
-          sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-          loading="eager"
-        ></iframe>
+      <div class="status-card">
+        <div class="live"><span class="dot" id="live-dot"></span> <span id="live-label">Live feed</span></div>
+        <p id="updated" style="margin:8px 0 0;color:var(--muted);font-size:13px;">Loaded real-time log stream</p>
       </div>
-    </main>
-  </div>
+    </section>
+
+    <section class="kpis" id="kpis"></section>
+
+    <section class="toolbar">
+      <input id="search" type="search" placeholder="Search employee name or ID..." aria-label="Search" />
+      <select id="sort" aria-label="Sort agents">
+        <option value="calls">Sort by successful calls</option>
+        <option value="fail">Sort by failure %</option>
+        <option value="name">Sort by name</option>
+      </select>
+      <button id="refresh" type="button">Refresh feed</button>
+    </section>
+
+    <section class="podium" id="podium"></section>
+
+    <section class="board">
+      <div class="board-head">
+        <h3>Agent Rankings</h3>
+        <span id="count-label">0 agents</span>
+      </div>
+      <div id="board-body" class="loading">Loading leaderboard…</div>
+    </section>
+
+    <footer class="note">
+      <span id="source-note">SW Analytics Leaderboard • Optimized for GitHub Pages</span>
+      <span>Direct S3 source: <a id="footer-s3-link" href="https://dat-tools.s3.amazonaws.com/swlogs/realtime_SF.html" target="_blank" rel="noopener">swlogs/realtime_SF.html</a></span>
+    </footer>
+  </main>
 
   <script>
-    const S3_ENDPOINTS = {
+    const EMBEDDED_DATA = {
+      live: [{"name": "name not found", "id": "0688", "calls": 17589, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0845", "calls": 10630, "failures": 0, "failPct": 0.0}, {"name": "Ramesh Ragul M", "id": "0354", "calls": 6637, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0776", "calls": 4569, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0761", "calls": 4519, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0771", "calls": 3774, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0550", "calls": 1864, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0765", "calls": 1330, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0742", "calls": 1180, "failures": 16, "failPct": 1.34}, {"name": "name not found", "id": "20.0.0.105", "calls": 975, "failures": 1253, "failPct": 56.24}, {"name": "name not found", "id": "20.0.0.109", "calls": 902, "failures": 1360, "failPct": 60.12}, {"name": "name not found", "id": "20.0.0.111", "calls": 879, "failures": 1788, "failPct": 67.04}, {"name": "name not found", "id": "20.0.0.106", "calls": 829, "failures": 1647, "failPct": 66.52}, {"name": "name not found", "id": "0833", "calls": 723, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.108", "calls": 713, "failures": 1519, "failPct": 68.06}, {"name": "name not found", "id": "20.0.0.110", "calls": 485, "failures": 1019, "failPct": 67.75}, {"name": "name not found", "id": "0630", "calls": 343, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.104", "calls": 311, "failures": 567, "failPct": 64.58}],
+      hist: [{"name": "name not found", "id": "0776", "calls": 182644, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0771", "calls": 180420, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0761", "calls": 172553, "failures": 0, "failPct": 0.0}, {"name": "Ramesh Ragul M", "id": "0354", "calls": 104980, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0688", "calls": 102642, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0845", "calls": 98646, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0550", "calls": 82252, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0630", "calls": 74283, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.108", "calls": 51630, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.106", "calls": 45449, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.105", "calls": 45022, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.111", "calls": 43069, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.104", "calls": 41293, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.112", "calls": 40744, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.113", "calls": 38953, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.109", "calls": 38329, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0632", "calls": 37592, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0863", "calls": 35942, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0637", "calls": 34778, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.102", "calls": 33169, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0768", "calls": 29806, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0593", "calls": 26244, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.110", "calls": 25716, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0634", "calls": 25255, "failures": 0, "failPct": 0.0}, {"name": "Jayaprakash Sharma R", "id": "0011", "calls": 24674, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0841", "calls": 20797, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0846", "calls": 19281, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0765", "calls": 18789, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0776_2", "calls": 17011, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0850", "calls": 14754, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0772", "calls": 9676, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0633", "calls": 9472, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0631", "calls": 9394, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0761_11", "calls": 9075, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0742", "calls": 8522, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0833", "calls": 6749, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.107", "calls": 5927, "failures": 0, "failPct": 0.0}, {"name": "Vignesh Pandian A", "id": "0092", "calls": 2121, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0633_1", "calls": 1065, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0846_pydoll", "calls": 794, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "776", "calls": 784, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "ownbrowser_new_ext", "calls": 750, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0637_PS", "calls": 686, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0772_1", "calls": 625, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0633_2", "calls": 532, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0630_2", "calls": 527, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0633_5", "calls": 441, "failures": 0, "failPct": 0.0}, {"name": "Rajath S", "id": "0044", "calls": 319, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0688_mac", "calls": 309, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0637_z", "calls": 280, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "205.251.180.78", "calls": 225, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "test_us", "calls": 79, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "test_ext", "calls": 71, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "InvisiblePlaywright", "calls": 53, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0633_4", "calls": 40, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0772_sw", "calls": 35, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "Botasaurus_tool", "calls": 18, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "213.161.78.106", "calls": 11, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0846_rayo", "calls": 10, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "get_profile_playwright", "calls": 10, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0741", "calls": 6, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0846_s", "calls": 3, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "I0033", "calls": 3, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "emp001", "calls": 3, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "Zendriver", "calls": 2, "failures": 0, "failPct": 0.0}]
+    };
+
+    const SOURCES = {
       live: {
-        url: "https://dat-tools.s3.amazonaws.com/swlogs/realtime_SF.html",
-        title: "Daily realtime - SW Analytics"
+        s3Url: "https://dat-tools.s3.amazonaws.com/swlogs/realtime_SF.html",
+        title: "Daily realtime",
+        copy: "Live agent ranking from today’s Softphone logs. Ranked by successful call count, with failure rate on every row.",
+        live: true
       },
       hist: {
-        url: "https://dat-tools.s3.amazonaws.com/swlogs/historical.html",
-        title: "Historical Analytics - SW Analytics"
+        s3Url: "https://dat-tools.s3.amazonaws.com/swlogs/historical.html",
+        title: "Historical analytics",
+        copy: "All-time call volume by agent. Use this page to compare long-run performance against today’s live board.",
+        live: false
       }
     };
 
-    const frame = document.getElementById("dashboard-frame");
-    const loader = document.getElementById("loader");
-    const loaderText = document.getElementById("loader-text");
-    const tabLive = document.getElementById("tab-live");
-    const tabHist = document.getElementById("tab-hist");
-    const btnS3 = document.getElementById("btn-s3");
-    const btnRefresh = document.getElementById("btn-refresh");
+    const state = { page: "live", rows: [], maxCalls: 1 };
 
-    function getActiveTab() {
-      const hash = location.hash.replace(/^#\/?/, "");
+    const $ = (id) => document.getElementById(id);
+
+    function currentPage() {
+      const hash = location.hash.replace("#", "").replace(/^\//, "");
       return hash === "analytics" || hash === "historical" ? "hist" : "live";
     }
 
-    function updateNavigation() {
-      const active = getActiveTab();
-      const endpoint = S3_ENDPOINTS[active];
-
-      tabLive.classList.toggle("active", active === "live");
-      tabHist.classList.toggle("active", active === "hist");
-      document.title = endpoint.title;
-      btnS3.href = endpoint.url;
-
-      // Load into iframe with cache buster for instant updates
-      loadIframe(endpoint.url);
+    function fmt(n) {
+      return Number(n || 0).toLocaleString("en-IN");
     }
 
-    function loadIframe(url) {
-      loader.classList.remove("hidden");
-      loaderText.textContent = "Loading live data from S3…";
-      frame.classList.remove("loaded");
-
-      // Add timestamp to bust browser cache
-      const bustUrl = url + (url.includes("?") ? "&" : "?") + "t=" + Date.now();
-      frame.src = bustUrl;
+    function displayName(row) {
+      const name = (row.name || "").trim();
+      if (!name || /^name not found$/i.test(name)) return "Agent " + row.id;
+      return name;
     }
 
-    frame.addEventListener("load", () => {
-      loader.classList.add("hidden");
-      frame.classList.add("loaded");
-    });
+    function failClass(pct) {
+      if (pct >= 20) return "bad";
+      if (pct >= 2) return "mid";
+      return "ok";
+    }
 
-    btnRefresh.addEventListener("click", () => {
-      const active = getActiveTab();
-      loadIframe(S3_ENDPOINTS[active].url);
-    });
+    function escapeHtml(s) {
+      return String(s || "").replace(/[&<>"']/g, (c) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[c]));
+    }
 
-    window.addEventListener("hashchange", updateNavigation);
-    updateNavigation();
+    function parseMarkdownOrHtml(text) {
+      if (text.includes("|")) {
+        const lines = text.split(/\r?\n/).filter((l) => l.includes("|"));
+        if (lines.length >= 2) {
+          const split = (line) => line.split("|").map((c) => c.trim()).filter((c, i, arr) => !(i === 0 && c === "") && !(i === arr.length - 1 && c === ""));
+          const headers = split(lines[0]).map((h) => h.toLowerCase());
+          const dataLines = lines.slice(1).filter((l) => !/^\s*\|?\s*:?-{2,}/.test(l));
+          const idx = {
+            name: headers.findIndex((h) => h.includes("employee") && h.includes("name")),
+            id: headers.findIndex((h) => h.includes("id")),
+            calls: headers.findIndex((h) => h.includes("call")),
+            fail: headers.findIndex((h) => h.includes("failure") && !h.includes("%")),
+            pct: headers.findIndex((h) => h.includes("%"))
+          };
+          const toNum = (v) => {
+            if (!v || /^none$/i.test(v) || v === "-") return 0;
+            const n = Number(String(v).replace(/,/g, ""));
+            return Number.isFinite(n) ? n : 0;
+          };
+          const parsed = dataLines.map((line) => {
+            const cells = split(line);
+            if (cells.length < 2) return null;
+            const calls = toNum(cells[idx.calls] ?? cells[2]);
+            const failures = idx.fail >= 0 ? toNum(cells[idx.fail]) : 0;
+            const failPct = idx.pct >= 0 ? toNum(cells[idx.pct]) : (calls + failures ? (failures / (calls + failures)) * 100 : 0);
+            return {
+              name: cells[idx.name] || cells[0] || "",
+              id: cells[idx.id] || cells[1] || "",
+              calls,
+              failures,
+              total: calls + failures,
+              failPct
+            };
+          }).filter((r) => r && (r.id || r.calls));
+          if (parsed.length) return parsed;
+        }
+      }
+
+      const doc = new DOMParser().parseFromString(text, "text/html");
+      const table = doc.querySelector("table.GeneratedTable") || doc.querySelector("table");
+      if (!table) return [];
+      const rows = [...table.querySelectorAll("tr")];
+      if (!rows.length) return [];
+      const headers = [...rows[0].querySelectorAll("th,td")].map((c) => c.textContent.trim().toLowerCase());
+      const idx = {
+        name: headers.findIndex((h) => h.includes("employee") && h.includes("name")),
+        id: headers.findIndex((h) => h.includes("id")),
+        calls: headers.findIndex((h) => h.includes("call")),
+        fail: headers.findIndex((h) => h.includes("failure") && !h.includes("%")),
+        pct: headers.findIndex((h) => h.includes("%"))
+      };
+      const toNum = (v) => {
+        if (!v || /^none$/i.test(v) || v === "-") return 0;
+        const n = Number(String(v).replace(/,/g, ""));
+        return Number.isFinite(n) ? n : 0;
+      };
+      return rows.slice(1).map((tr) => {
+        const cells = [...tr.querySelectorAll("td")].map((td) => td.textContent.trim());
+        if (!cells.length) return null;
+        const calls = toNum(cells[idx.calls] ?? cells[2]);
+        const failures = idx.fail >= 0 ? toNum(cells[idx.fail]) : 0;
+        const failPct = idx.pct >= 0 ? toNum(cells[idx.pct]) : (calls + failures ? (failures / (calls + failures)) * 100 : 0);
+        return {
+          name: cells[idx.name] || cells[0] || "",
+          id: cells[idx.id] || cells[1] || "",
+          calls,
+          failures,
+          total: calls + failures,
+          failPct
+        };
+      }).filter((r) => r && (r.id || r.calls));
+    }
+
+    async function tryFetchFresh(page) {
+      const src = SOURCES[page];
+      const targetUrl = src.s3Url;
+      const proxies = [
+        "https://r.jina.ai/" + targetUrl
+      ];
+
+      for (const endpoint of proxies) {
+        try {
+          const res = await fetch(endpoint, { cache: "no-store" });
+          if (res.ok) {
+            const text = await res.text();
+            const parsed = parseMarkdownOrHtml(text);
+            if (parsed.length) {
+              state.rows = parsed;
+              $("updated").textContent = "Live stream updated (" + new Date().toLocaleTimeString() + ")";
+              render();
+              return;
+            }
+          }
+        } catch (e) {
+          // Continue gracefully
+        }
+      }
+    }
+
+    function load() {
+      const page = currentPage();
+      state.page = page;
+      const src = SOURCES[page];
+
+      $("tab-live").classList.toggle("active", page === "live");
+      $("tab-hist").classList.toggle("active", page === "hist");
+      $("page-title").textContent = src.title;
+      $("page-copy").textContent = src.copy;
+      $("live-label").textContent = src.live ? "Live feed" : "Historical snapshot";
+      $("live-dot").style.background = src.live ? "var(--ok)" : "var(--gold)";
+      $("direct-s3-link").href = src.s3Url;
+      $("footer-s3-link").href = src.s3Url;
+      $("footer-s3-link").textContent = src.s3Url.replace(/^https?:\/\//, "");
+
+      const failOpt = $("sort").querySelector('option[value="fail"]');
+      if (failOpt) failOpt.hidden = page === "hist";
+      if (page === "hist" && $("sort").value === "fail") $("sort").value = "calls";
+
+      $("search").value = "";
+      $("board-body").className = "loading";
+      $("board-body").textContent = "Loading leaderboard…";
+
+      // 1. Immediately render embedded data (0ms, 100% reliable)
+      state.rows = [...(EMBEDDED_DATA[page] || [])];
+      $("updated").textContent = "Live feed ready • " + state.rows.length + " agents";
+      render();
+
+      // 2. Proactively try fetching fresh updates
+      tryFetchFresh(page);
+    }
+
+    function filtered() {
+      const q = $("search").value.trim().toLowerCase();
+      const sort = $("sort").value;
+      let rows = [...state.rows];
+      if (q) {
+        rows = rows.filter((r) => displayName(r).toLowerCase().includes(q) || String(r.id).toLowerCase().includes(q));
+      }
+      rows.sort((a, b) => {
+        if (sort === "name") return displayName(a).localeCompare(displayName(b));
+        if (sort === "fail") return b.failPct - a.failPct;
+        return b.calls - a.calls;
+      });
+      return rows;
+    }
+
+    function render() {
+      const rows = filtered();
+      const showFail = state.page === "live";
+      const totalCalls = state.rows.reduce((s, r) => s + r.calls, 0);
+      const totalFail = state.rows.reduce((s, r) => s + r.failures, 0);
+      const attempts = totalCalls + totalFail;
+      const failPct = attempts ? (totalFail / attempts) * 100 : 0;
+      state.maxCalls = Math.max(...rows.map((r) => r.calls), 1);
+
+      const kpis = [
+        ["Total Agents", fmt(state.rows.length)],
+        ["Successful Calls", fmt(totalCalls)]
+      ];
+      if (showFail) {
+        kpis.push(["Failed Calls", fmt(totalFail)]);
+        kpis.push(["Failure Rate", failPct.toFixed(2) + "%"]);
+      } else {
+        kpis.push(["Top Agent Volume", fmt(Math.max(...state.rows.map((r) => r.calls), 0))]);
+        kpis.push(["Average / Agent", fmt(Math.round(totalCalls / Math.max(state.rows.length, 1)))]);
+      }
+      $("kpis").innerHTML = kpis.map(([l, v]) => `
+        <article class="kpi">
+          <span>${l}</span>
+          <strong>${v}</strong>
+        </article>
+      `).join("");
+
+      const top = [...state.rows].sort((a, b) => b.calls - a.calls).slice(0, 3);
+      const medals = ["gold", "silver", "bronze"];
+      $("podium").innerHTML = top.map((r, i) => `
+        <article class="place">
+          <div class="medal ${medals[i]}">${i + 1}</div>
+          <div>
+            <h3>${escapeHtml(displayName(r))}</h3>
+            <div class="id">ID: ${escapeHtml(String(r.id))}</div>
+          </div>
+          <div class="score">${fmt(r.calls)} <span style="font-size:13px;color:var(--muted);font-weight:400">calls</span></div>
+        </article>
+      `).join("");
+
+      $("count-label").textContent = rows.length + " agents";
+      if (!rows.length) {
+        $("board-body").className = "empty";
+        $("board-body").textContent = "No agents match your search.";
+        return;
+      }
+
+      const failHead = showFail ? `<th class="right">Failures</th><th class="right">Failure %</th>` : "";
+      $("board-body").className = "";
+      $("board-body").innerHTML = `
+        <div class="desktop-table">
+          <div class="table-container">
+            <table class="lb">
+              <thead>
+                <tr>
+                  <th style="width:70px">Rank</th>
+                  <th>Agent Name</th>
+                  <th>Employee ID</th>
+                  <th class="right">Successful Calls</th>
+                  ${failHead}
+                </tr>
+              </thead>
+              <tbody>
+                ${rows.map((r, i) => `
+                  <tr>
+                    <td>
+                      <span class="rank ${i === 0 ? "rank-top1" : i === 1 ? "rank-top2" : i === 2 ? "rank-top3" : ""}">${i + 1}</span>
+                    </td>
+                    <td style="font-weight:500">${escapeHtml(displayName(r))}</td>
+                    <td class="mono" style="color:var(--muted)">${escapeHtml(String(r.id))}</td>
+                    <td class="right mono" style="font-weight:600">${fmt(r.calls)}</td>
+                    ${showFail ? `<td class="right mono" style="color:var(--muted)">${fmt(r.failures)}</td><td class="right"><span class="fail-pill ${failClass(r.failPct)}">${r.failPct.toFixed(2)}%</span></td>` : ""}
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="mobile-list">
+          ${rows.map((r, i) => `
+            <article class="card-row">
+              <div class="card-top">
+                <div>
+                  <strong>${i + 1}. ${escapeHtml(displayName(r))}</strong>
+                  <div class="id" style="color:var(--muted);font-size:12px;margin-top:3px">ID: ${escapeHtml(String(r.id))}</div>
+                </div>
+                <div class="mono" style="font-weight:600;font-size:16px">${fmt(r.calls)} <span style="font-size:11px;color:var(--muted);font-weight:400">calls</span></div>
+              </div>
+              <div class="bar"><i style="width:${Math.max(4, (r.calls / state.maxCalls) * 100)}%"></i></div>
+              <div class="meta">
+                <span>${showFail ? fmt(r.failures) + " failed" : "All-time call volume"}</span>
+                ${showFail ? `<span class="fail-pill ${failClass(r.failPct)}">${r.failPct.toFixed(2)}%</span>` : ""}
+              </div>
+            </article>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    $("search").addEventListener("input", render);
+    $("sort").addEventListener("change", render);
+    $("refresh").addEventListener("click", () => {
+      $("updated").textContent = "Checking for live updates…";
+      tryFetchFresh(state.page);
+    });
+    window.addEventListener("hashchange", load);
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", load);
+    } else {
+      load();
+    }
   </script>
 </body>
 </html>

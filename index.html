@@ -3,31 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#071018" />
-  <title>SW Analytics - Call Operations Dashboard</title>
+  <meta name="theme-color" content="#070d18" />
+  <title>SW Analytics - Call Operations Dashboard & Earnings</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #071018;
-      --bg-2: #0c1824;
-      --panel: rgba(14, 28, 42, 0.78);
-      --panel-solid: #102232;
-      --line: rgba(148, 187, 214, 0.16);
-      --text: #e8f2f8;
-      --muted: #8aa3b5;
-      --teal: #4ee0c2;
-      --teal-2: #1aa88e;
-      --gold: #f5c451;
-      --silver: #c9d4e0;
-      --bronze: #d08a4c;
-      --danger: #ff7a90;
-      --ok: #5ee4a8;
-      --warn: #ffc56e;
-      --shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+      --bg: #070d18;
+      --bg-2: #0c1828;
+      --panel: rgba(13, 25, 41, 0.82);
+      --panel-solid: #102337;
+      --panel-hover: rgba(22, 43, 68, 0.85);
+      --line: rgba(136, 187, 230, 0.16);
+      --line-glow: rgba(99, 102, 241, 0.4);
+      --text: #f1f7fc;
+      --muted: #8ea7bd;
+      --teal: #38bdf8;
+      --teal-2: #0284c7;
+      --indigo: #6366f1;
+      --cyan: #06b6d4;
+      --emerald: #10b981;
+      --gold: #f59e0b;
+      --silver: #cbd5e1;
+      --bronze: #ea580c;
+      --danger: #ff6b81;
+      --ok: #34d399;
+      --warn: #fbbf24;
+      --gradient-theme: linear-gradient(135deg, #6366f1 0%, #06b6d4 50%, #10b981 100%);
+      --gradient-theme-h: linear-gradient(90deg, #4f46e5 0%, #0891b2 50%, #059669 100%);
+      --gradient-gold: linear-gradient(135deg, #fef08a 0%, #f59e0b 60%, #b45309 100%);
+      --gradient-silver: linear-gradient(135deg, #ffffff 0%, #cbd5e1 60%, #64748b 100%);
+      --gradient-bronze: linear-gradient(135deg, #fed7aa 0%, #ea580c 60%, #7c2d12 100%);
+      --gradient-money: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
       --radius: 20px;
-      --nav-h: 68px;
+      --nav-h: 70px;
     }
 
     * { box-sizing: border-box; }
@@ -36,10 +47,12 @@
       font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       color: var(--text);
       background:
-        radial-gradient(1200px 500px at 10% -10%, rgba(78, 224, 194, 0.16), transparent 55%),
-        radial-gradient(900px 420px at 100% 0%, rgba(245, 196, 81, 0.1), transparent 50%),
-        linear-gradient(180deg, var(--bg) 0%, #08131d 100%);
+        radial-gradient(1200px 520px at 10% -10%, rgba(99, 102, 241, 0.22), transparent 55%),
+        radial-gradient(1000px 480px at 95% -5%, rgba(6, 182, 212, 0.2), transparent 50%),
+        radial-gradient(850px 500px at 50% 100%, rgba(16, 185, 129, 0.12), transparent 60%),
+        linear-gradient(180deg, var(--bg) 0%, #08111d 100%);
       letter-spacing: 0.01em;
+      min-height: 100vh;
     }
 
     button, input, select { font: inherit; color: inherit; }
@@ -57,8 +70,9 @@
       z-index: 20;
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
-      background: rgba(7, 16, 24, 0.88);
+      background: rgba(7, 13, 24, 0.9);
       border-bottom: 1px solid var(--line);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
     }
 
     .appbar-inner {
@@ -79,15 +93,17 @@
     }
 
     .logo {
-      width: 38px;
-      height: 38px;
+      width: 40px;
+      height: 40px;
       border-radius: 12px;
       display: grid;
       place-items: center;
-      background: linear-gradient(160deg, var(--teal), #0d6b5d);
-      color: #04231d;
-      font-weight: 700;
-      box-shadow: 0 0 0 4px rgba(78, 224, 194, 0.12);
+      background: var(--gradient-theme);
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 15px;
+      letter-spacing: -0.02em;
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.35);
       flex-shrink: 0;
     }
 
@@ -107,7 +123,7 @@
     .nav-actions {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     nav.tabs {
@@ -116,7 +132,7 @@
       padding: 4px;
       border: 1px solid var(--line);
       border-radius: 999px;
-      background: rgba(16, 34, 50, 0.7);
+      background: rgba(16, 35, 55, 0.7);
     }
 
     nav.tabs a {
@@ -137,9 +153,63 @@
     }
 
     nav.tabs a.active {
-      color: #04231d;
-      background: var(--teal);
-      box-shadow: 0 2px 8px rgba(78, 224, 194, 0.25);
+      color: #ffffff;
+      background: var(--gradient-theme);
+      box-shadow: 0 3px 12px rgba(6, 182, 212, 0.35);
+    }
+
+    /* Money Toggle Button in Appbar */
+    .money-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      background: rgba(16, 185, 129, 0.1);
+      color: #6ee7b7;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.22s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      white-space: nowrap;
+    }
+
+    .money-btn:hover {
+      border-color: rgba(52, 211, 153, 0.7);
+      background: rgba(16, 185, 129, 0.2);
+      color: #a7f3d0;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+    }
+
+    .money-btn.active {
+      background: var(--gradient-money);
+      border-color: #34d399;
+      color: #042419;
+      font-weight: 700;
+      box-shadow: 0 0 22px rgba(16, 185, 129, 0.5);
+    }
+
+    .money-btn .money-icon-badge {
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .money-btn .money-rate-tag {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(52, 211, 153, 0.2);
+      color: #a7f3d0;
+      font-family: "IBM Plex Mono", monospace;
+      font-weight: 600;
+    }
+
+    .money-btn.active .money-rate-tag {
+      background: rgba(4, 36, 25, 0.25);
+      color: #032216;
     }
 
     .s3-badge {
@@ -152,14 +222,14 @@
       padding: 7px 12px;
       border-radius: 10px;
       border: 1px solid var(--line);
-      background: rgba(16, 34, 50, 0.5);
+      background: rgba(16, 35, 55, 0.5);
       transition: all 0.2s;
     }
 
     .s3-badge:hover {
-      color: var(--teal);
-      border-color: var(--teal);
-      background: rgba(78, 224, 194, 0.1);
+      color: var(--cyan);
+      border-color: var(--cyan);
+      background: rgba(6, 182, 212, 0.12);
     }
 
     .hero {
@@ -173,6 +243,10 @@
       margin: 0 0 8px;
       font-size: clamp(26px, 3.8vw, 40px);
       line-height: 1.15;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ffffff 40%, #7dd3fc 75%, #a5b4fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .hero p { margin: 0; color: var(--muted); max-width: 58ch; font-size: 15px; line-height: 1.5; }
@@ -204,7 +278,7 @@
       height: 8px;
       border-radius: 50%;
       background: var(--ok);
-      box-shadow: 0 0 0 6px rgba(94, 228, 168, 0.16);
+      box-shadow: 0 0 0 6px rgba(52, 211, 153, 0.18);
       animation: pulse 1.8s infinite ease-in-out;
     }
 
@@ -223,11 +297,18 @@
     .kpi {
       background: var(--panel);
       border: 1px solid var(--line);
+      border-top: 2px solid rgba(99, 102, 241, 0.35);
       border-radius: 16px;
       padding: 18px;
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .kpi:hover {
+      transform: translateY(-2px);
+      border-top-color: var(--cyan);
     }
 
     .kpi span {
@@ -247,6 +328,11 @@
       color: var(--text);
     }
 
+    .kpi.kpi-money-card strong {
+      color: #34d399;
+      text-shadow: 0 0 16px rgba(16, 185, 129, 0.3);
+    }
+
     .toolbar {
       display: flex;
       gap: 10px;
@@ -259,13 +345,14 @@
       border: 1px solid var(--line);
       border-radius: 12px;
       padding: 11px 14px;
-      transition: border-color 0.18s ease;
+      transition: all 0.18s ease;
     }
 
     .toolbar input { flex: 1; min-width: 220px; }
     .toolbar input:focus, .toolbar select:focus {
       outline: none;
-      border-color: var(--teal);
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px rgba(6, 182, 212, 0.25);
     }
 
     .toolbar button {
@@ -277,8 +364,8 @@
     }
 
     .toolbar button:hover {
-      border-color: var(--teal);
-      background: rgba(78, 224, 194, 0.12);
+      border-color: var(--cyan);
+      background: rgba(6, 182, 212, 0.12);
     }
 
     .podium {
@@ -293,46 +380,112 @@
       background: var(--panel);
       border: 1px solid var(--line);
       border-radius: 18px;
-      padding: 20px;
+      padding: 22px;
       position: relative;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .place:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.36);
     }
 
     .place:nth-child(1) {
       order: 2;
       transform: translateY(-8px);
-      border-color: rgba(245, 196, 81, 0.45);
-      background: linear-gradient(180deg, rgba(245, 196, 81, 0.08), var(--panel));
+      border-color: rgba(245, 158, 11, 0.45);
+      background: linear-gradient(180deg, rgba(245, 158, 11, 0.12), var(--panel));
+      box-shadow: 0 16px 40px rgba(245, 158, 11, 0.15);
     }
-    .place:nth-child(2) { order: 1; }
-    .place:nth-child(3) { order: 3; }
+    .place:nth-child(1):hover {
+      transform: translateY(-12px);
+      box-shadow: 0 22px 50px rgba(245, 158, 11, 0.25);
+    }
+    .place:nth-child(2) {
+      order: 1;
+      border-color: rgba(203, 213, 225, 0.3);
+      background: linear-gradient(180deg, rgba(203, 213, 225, 0.08), var(--panel));
+    }
+    .place:nth-child(3) {
+      order: 3;
+      border-color: rgba(234, 88, 12, 0.3);
+      background: linear-gradient(180deg, rgba(234, 88, 12, 0.08), var(--panel));
+    }
+
+    .medal-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
 
     .medal {
-      width: 36px;
-      height: 36px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
-      display: grid;
-      place-items: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
       font-weight: 700;
-      margin-bottom: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
     }
 
-    .gold { background: linear-gradient(135deg, #fce07a, var(--gold)); color: #3d2a00; }
-    .silver { background: linear-gradient(135deg, #f0f4f8, var(--silver)); color: #243040; }
-    .bronze { background: linear-gradient(135deg, #e8a76d, var(--bronze)); color: #2a1608; }
+    .medal .medal-icon {
+      font-size: 18px;
+      line-height: 1;
+    }
 
-    .place h3 { margin: 0 0 4px; font-size: 16px; font-weight: 600; }
+    .medal .medal-num {
+      font-size: 13px;
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    .place-badge {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    .gold-badge { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .silver-badge { background: rgba(203, 213, 225, 0.16); color: #e2e8f0; border: 1px solid rgba(203, 213, 225, 0.3); }
+    .bronze-badge { background: rgba(234, 88, 12, 0.18); color: #fb923c; border: 1px solid rgba(234, 88, 12, 0.35); }
+
+    .gold { background: var(--gradient-gold); color: #3b1d00; text-shadow: 0 1px 0 rgba(255,255,255,0.3); }
+    .silver { background: var(--gradient-silver); color: #0f172a; }
+    .bronze { background: var(--gradient-bronze); color: #2d1004; text-shadow: 0 1px 0 rgba(255,255,255,0.2); }
+
+    .place h3 { margin: 0 0 4px; font-size: 17px; font-weight: 600; }
     .place .id { color: var(--muted); font-size: 12px; margin-bottom: 14px; }
     .place .score {
       font-family: "IBM Plex Mono", monospace;
       font-size: 24px;
       font-weight: 600;
       color: var(--teal);
+    }
+
+    .podium-payout {
+      margin-top: 8px;
+      padding: 6px 12px;
+      border-radius: 10px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #34d399;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 14px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.15);
     }
 
     .board {
@@ -349,7 +502,7 @@
       align-items: center;
       padding: 16px 20px;
       border-bottom: 1px solid var(--line);
-      background: rgba(16, 34, 50, 0.4);
+      background: rgba(13, 26, 42, 0.6);
     }
 
     .board-head h3 { margin: 0; font-size: 16px; font-weight: 600; }
@@ -378,31 +531,133 @@
       letter-spacing: 0.08em;
       text-transform: uppercase;
       font-weight: 600;
-      background: rgba(16, 34, 50, 0.6);
+      background: rgba(13, 26, 42, 0.85);
       position: sticky;
       top: 0;
       z-index: 2;
+      border-bottom: 2px solid rgba(99, 102, 241, 0.25);
     }
 
-    table.lb tr:hover td { background: rgba(78, 224, 194, 0.04); }
+    .th-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .th-wrap.right {
+      justify-content: flex-end;
+      width: 100%;
+    }
+
+    table.lb tr:hover td { background: rgba(99, 102, 241, 0.06); }
     .mono { font-family: "IBM Plex Mono", monospace; }
     .right { text-align: right !important; }
 
     .rank {
-      width: 32px;
-      height: 32px;
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
-      display: inline-grid;
-      place-items: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
       background: rgba(255, 255, 255, 0.06);
       font-size: 13px;
       font-weight: 700;
       font-family: "IBM Plex Mono", monospace;
+      transition: transform 0.15s ease;
     }
 
-    .rank-top1 { background: var(--gold); color: #3d2a00; }
-    .rank-top2 { background: var(--silver); color: #243040; }
-    .rank-top3 { background: var(--bronze); color: #2a1608; }
+    .rank .rank-ico {
+      font-size: 11px;
+      line-height: 1;
+    }
+
+    .rank-top1 {
+      background: var(--gradient-gold);
+      color: #3b1d00;
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.45);
+    }
+    .rank-top2 {
+      background: var(--gradient-silver);
+      color: #0f172a;
+      box-shadow: 0 0 12px rgba(203, 213, 225, 0.35);
+    }
+    .rank-top3 {
+      background: var(--gradient-bronze);
+      color: #2b0e03;
+      box-shadow: 0 0 12px rgba(234, 88, 12, 0.35);
+    }
+    .rank-top10 {
+      background: rgba(99, 102, 241, 0.2);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.4);
+    }
+
+    .agent-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .agent-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #ffffff;
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    }
+
+    .agent-name-text {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .id-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: "IBM Plex Mono", monospace;
+      color: var(--muted);
+      font-size: 13px;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .calls-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      color: #e0f2fe;
+    }
+
+    .calls-badge .calls-ico {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+    .earnings-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      background: rgba(16, 185, 129, 0.16);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #34d399;
+      font-weight: 700;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 13px;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.12);
+    }
 
     .fail-pill {
       display: inline-flex;
@@ -415,9 +670,9 @@
       font-family: "IBM Plex Mono", monospace;
     }
 
-    .ok { background: rgba(94, 228, 168, 0.15); color: var(--ok); }
-    .mid { background: rgba(255, 197, 110, 0.16); color: var(--warn); }
-    .bad { background: rgba(255, 122, 144, 0.18); color: var(--danger); }
+    .ok { background: rgba(52, 211, 153, 0.15); color: var(--ok); }
+    .mid { background: rgba(251, 191, 36, 0.16); color: var(--warn); }
+    .bad { background: rgba(255, 107, 129, 0.18); color: var(--danger); }
 
     .mobile-list { display: none; }
 
@@ -435,6 +690,43 @@
       align-items: flex-start;
     }
 
+    .card-user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-rank-badge {
+      font-size: 14px;
+      font-weight: 700;
+      font-family: "IBM Plex Mono", monospace;
+      padding: 4px 8px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .card-values {
+      text-align: right;
+    }
+
+    .mobile-earnings-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 4px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(16, 185, 129, 0.16);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #34d399;
+      font-weight: 700;
+      font-size: 12px;
+      font-family: "IBM Plex Mono", monospace;
+    }
+
     .bar {
       height: 8px;
       border-radius: 99px;
@@ -445,8 +737,9 @@
     .bar > i {
       display: block;
       height: 100%;
-      background: linear-gradient(90deg, var(--teal-2), var(--teal));
+      background: var(--gradient-theme-h);
       border-radius: 99px;
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
     }
 
     .meta {
@@ -455,6 +748,7 @@
       gap: 8px;
       color: var(--muted);
       font-size: 12px;
+      align-items: center;
     }
 
     .empty, .error, .loading {
@@ -489,9 +783,11 @@
     @media (max-width: 720px) {
       .shell { width: min(100% - 20px, 1180px); }
       .appbar-inner { width: min(100% - 20px, 1180px); flex-wrap: wrap; padding: 12px 0; }
-      .nav-actions { width: 100%; justify-content: space-between; }
-      nav.tabs { flex: 1; }
+      .nav-actions { width: 100%; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+      .money-btn { order: 2; width: 100%; justify-content: center; }
+      nav.tabs { flex: 1; order: 1; }
       nav.tabs a { flex: 1; text-align: center; }
+      .s3-badge { order: 1; }
       .hero, .kpis, .podium { grid-template-columns: 1fr; }
       .place:nth-child(1),
       .place:nth-child(2),
@@ -515,6 +811,13 @@
         </div>
       </div>
       <div class="nav-actions">
+        <!-- Money button toggle in the top -->
+        <button id="money-toggle" class="money-btn" type="button" aria-pressed="false" title="Calculate and show earnings (₹0.06 per successful call)">
+          <span class="money-icon-badge">💰</span>
+          <span class="money-text">Show Earnings</span>
+          <span class="money-rate-tag">₹0.06/call</span>
+        </button>
+
         <nav class="tabs">
           <a href="#/" id="tab-live">Daily realtime</a>
           <a href="#/analytics" id="tab-hist">Historical</a>
@@ -565,6 +868,8 @@
   </main>
 
   <script>
+    const RATE_PER_CALL = 0.06; // INR per single successful count
+
     const EMBEDDED_DATA = {
       live: [{"name": "name not found", "id": "0688", "calls": 17589, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0845", "calls": 10630, "failures": 0, "failPct": 0.0}, {"name": "Ramesh Ragul M", "id": "0354", "calls": 6637, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0776", "calls": 4569, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0761", "calls": 4519, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0771", "calls": 3774, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0550", "calls": 1864, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0765", "calls": 1330, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0742", "calls": 1180, "failures": 16, "failPct": 1.34}, {"name": "name not found", "id": "20.0.0.105", "calls": 975, "failures": 1253, "failPct": 56.24}, {"name": "name not found", "id": "20.0.0.109", "calls": 902, "failures": 1360, "failPct": 60.12}, {"name": "name not found", "id": "20.0.0.111", "calls": 879, "failures": 1788, "failPct": 67.04}, {"name": "name not found", "id": "20.0.0.106", "calls": 829, "failures": 1647, "failPct": 66.52}, {"name": "name not found", "id": "0833", "calls": 723, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.108", "calls": 713, "failures": 1519, "failPct": 68.06}, {"name": "name not found", "id": "20.0.0.110", "calls": 485, "failures": 1019, "failPct": 67.75}, {"name": "name not found", "id": "0630", "calls": 343, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.104", "calls": 311, "failures": 567, "failPct": 64.58}],
       hist: [{"name": "name not found", "id": "0776", "calls": 182644, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0771", "calls": 180420, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0761", "calls": 172553, "failures": 0, "failPct": 0.0}, {"name": "Ramesh Ragul M", "id": "0354", "calls": 104980, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0688", "calls": 102642, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0845", "calls": 98646, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0550", "calls": 82252, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0630", "calls": 74283, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.108", "calls": 51630, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.106", "calls": 45449, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.105", "calls": 45022, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.111", "calls": 43069, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.104", "calls": 41293, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.112", "calls": 40744, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.113", "calls": 38953, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.109", "calls": 38329, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0632", "calls": 37592, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0863", "calls": 35942, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0637", "calls": 34778, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.102", "calls": 33169, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0768", "calls": 29806, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0593", "calls": 26244, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.110", "calls": 25716, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0634", "calls": 25255, "failures": 0, "failPct": 0.0}, {"name": "Jayaprakash Sharma R", "id": "0011", "calls": 24674, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0841", "calls": 20797, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0846", "calls": 19281, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0765", "calls": 18789, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0776_2", "calls": 17011, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0850", "calls": 14754, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0772", "calls": 9676, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0633", "calls": 9472, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0631", "calls": 9394, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0761_11", "calls": 9075, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0742", "calls": 8522, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0833", "calls": 6749, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.107", "calls": 5927, "failures": 0, "failPct": 0.0}, {"name": "Vignesh Pandian A", "id": "0092", "calls": 2121, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0633_1", "calls": 1065, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0846_pydoll", "calls": 794, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "776", "calls": 784, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "ownbrowser_new_ext", "calls": 750, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0637_PS", "calls": 686, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0772_1", "calls": 625, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0633_2", "calls": 532, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0630_2", "calls": 527, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0633_5", "calls": 441, "failures": 0, "failPct": 0.0}, {"name": "Rajath S", "id": "0044", "calls": 319, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0688_mac", "calls": 309, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0637_z", "calls": 280, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "205.251.180.78", "calls": 225, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "test_us", "calls": 79, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "test_ext", "calls": 71, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "InvisiblePlaywright", "calls": 53, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0633_4", "calls": 40, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0772_sw", "calls": 35, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "Botasaurus_tool", "calls": 18, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "213.161.78.106", "calls": 11, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0846_rayo", "calls": 10, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "get_profile_playwright", "calls": 10, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0741", "calls": 6, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0846_s", "calls": 3, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "I0033", "calls": 3, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "emp001", "calls": 3, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "Zendriver", "calls": 2, "failures": 0, "failPct": 0.0}]
@@ -585,7 +890,7 @@
       }
     };
 
-    const state = { page: "live", rows: [], maxCalls: 1 };
+    const state = { page: "live", rows: [], maxCalls: 1, showMoney: false };
 
     const $ = (id) => document.getElementById(id);
 
@@ -598,10 +903,41 @@
       return Number(n || 0).toLocaleString("en-IN");
     }
 
+    function fmtMoney(amount) {
+      return "₹" + Number(amount || 0).toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
     function displayName(row) {
       const name = (row.name || "").trim();
       if (!name || /^name not found$/i.test(name)) return "Agent " + row.id;
       return name;
+    }
+
+    function agentAvatar(row) {
+      const name = displayName(row);
+      const parts = name.split(/\s+/).filter(Boolean);
+      let initials = "";
+      if (parts.length >= 2) {
+        initials = (parts[0][0] + parts[1][0]).toUpperCase();
+      } else if (parts.length === 1) {
+        initials = parts[0].slice(0, 2).toUpperCase();
+      } else {
+        initials = "AG";
+      }
+      const hash = String(row.id || name).split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
+      const gradients = [
+        "linear-gradient(135deg, #6366f1, #06b6d4)",
+        "linear-gradient(135deg, #3b82f6, #10b981)",
+        "linear-gradient(135deg, #8b5cf6, #ec4899)",
+        "linear-gradient(135deg, #f59e0b, #ef4444)",
+        "linear-gradient(135deg, #10b981, #06b6d4)",
+        "linear-gradient(135deg, #0284c7, #6366f1)"
+      ];
+      const grad = gradients[hash % gradients.length];
+      return `<div class="agent-avatar" style="background:${grad}">${escapeHtml(initials)}</div>`;
     }
 
     function failClass(pct) {
@@ -618,6 +954,22 @@
         '"': "&quot;",
         "'": "&#39;"
       }[c]));
+    }
+
+    function updateMoneyBtnUI() {
+      const btn = $("money-toggle");
+      if (!btn) return;
+      btn.classList.toggle("active", state.showMoney);
+      btn.setAttribute("aria-pressed", state.showMoney ? "true" : "false");
+      const textSpan = btn.querySelector(".money-text");
+      const tagSpan = btn.querySelector(".money-rate-tag");
+      if (state.showMoney) {
+        if (textSpan) textSpan.textContent = "Hide Earnings";
+        if (tagSpan) tagSpan.textContent = "Active (₹0.06)";
+      } else {
+        if (textSpan) textSpan.textContent = "Show Earnings";
+        if (tagSpan) tagSpan.textContent = "₹0.06/call";
+      }
     }
 
     function parseMarkdownOrHtml(text) {
@@ -742,6 +1094,9 @@
       $("board-body").className = "loading";
       $("board-body").textContent = "Loading leaderboard…";
 
+      // Synchronize money button UI
+      updateMoneyBtnUI();
+
       // 1. Immediately render embedded data (0ms, 100% reliable)
       state.rows = [...(EMBEDDED_DATA[page] || [])];
       $("updated").textContent = "Live feed ready • " + state.rows.length + " agents";
@@ -769,42 +1124,95 @@
     function render() {
       const rows = filtered();
       const showFail = state.page === "live";
+      const showMoney = state.showMoney;
       const totalCalls = state.rows.reduce((s, r) => s + r.calls, 0);
       const totalFail = state.rows.reduce((s, r) => s + r.failures, 0);
+      const totalPayout = totalCalls * RATE_PER_CALL;
       const attempts = totalCalls + totalFail;
       const failPct = attempts ? (totalFail / attempts) * 100 : 0;
       state.maxCalls = Math.max(...rows.map((r) => r.calls), 1);
 
-      const kpis = [
-        ["Total Agents", fmt(state.rows.length)],
-        ["Successful Calls", fmt(totalCalls)]
-      ];
+      // Render KPIs
+      let kpis = [];
       if (showFail) {
-        kpis.push(["Failed Calls", fmt(totalFail)]);
-        kpis.push(["Failure Rate", failPct.toFixed(2) + "%"]);
+        if (showMoney) {
+          kpis = [
+            ["Total Agents", fmt(state.rows.length), false],
+            ["Successful Calls", fmt(totalCalls), false],
+            ["Total Earnings (₹0.06)", fmtMoney(totalPayout), true],
+            ["Failure Rate", failPct.toFixed(2) + "%", false]
+          ];
+        } else {
+          kpis = [
+            ["Total Agents", fmt(state.rows.length), false],
+            ["Successful Calls", fmt(totalCalls), false],
+            ["Failed Calls", fmt(totalFail), false],
+            ["Failure Rate", failPct.toFixed(2) + "%", false]
+          ];
+        }
       } else {
-        kpis.push(["Top Agent Volume", fmt(Math.max(...state.rows.map((r) => r.calls), 0))]);
-        kpis.push(["Average / Agent", fmt(Math.round(totalCalls / Math.max(state.rows.length, 1)))]);
+        if (showMoney) {
+          const avgPayout = state.rows.length ? totalPayout / state.rows.length : 0;
+          kpis = [
+            ["Total Agents", fmt(state.rows.length), false],
+            ["All-Time Calls", fmt(totalCalls), false],
+            ["Total Earnings (₹0.06)", fmtMoney(totalPayout), true],
+            ["Avg Earnings / Agent", fmtMoney(avgPayout), true]
+          ];
+        } else {
+          kpis = [
+            ["Total Agents", fmt(state.rows.length), false],
+            ["All-Time Calls", fmt(totalCalls), false],
+            ["Top Agent Volume", fmt(Math.max(...state.rows.map((r) => r.calls), 0)), false],
+            ["Average / Agent", fmt(Math.round(totalCalls / Math.max(state.rows.length, 1))), false]
+          ];
+        }
       }
-      $("kpis").innerHTML = kpis.map(([l, v]) => `
-        <article class="kpi">
+
+      $("kpis").innerHTML = kpis.map(([l, v, isMoney]) => `
+        <article class="kpi ${isMoney ? "kpi-money-card" : ""}">
           <span>${l}</span>
           <strong>${v}</strong>
         </article>
       `).join("");
 
+      // Render Podium (Top 3 Agents)
       const top = [...state.rows].sort((a, b) => b.calls - a.calls).slice(0, 3);
       const medals = ["gold", "silver", "bronze"];
-      $("podium").innerHTML = top.map((r, i) => `
-        <article class="place">
-          <div class="medal ${medals[i]}">${i + 1}</div>
-          <div>
-            <h3>${escapeHtml(displayName(r))}</h3>
-            <div class="id">ID: ${escapeHtml(String(r.id))}</div>
-          </div>
-          <div class="score">${fmt(r.calls)} <span style="font-size:13px;color:var(--muted);font-weight:400">calls</span></div>
-        </article>
-      `).join("");
+      const medalIcons = ["👑", "🥈", "🥉"];
+      const badges = [
+        `<span class="place-badge gold-badge">🏆 1st Champion</span>`,
+        `<span class="place-badge silver-badge">⭐ 2nd Place</span>`,
+        `<span class="place-badge bronze-badge">🎯 3rd Place</span>`
+      ];
+
+      $("podium").innerHTML = top.map((r, i) => {
+        const earnings = r.calls * RATE_PER_CALL;
+        return `
+          <article class="place">
+            <div class="medal-wrap">
+              <div class="medal ${medals[i]}" title="Rank ${i + 1}">
+                <span class="medal-icon">${medalIcons[i]}</span>
+                <span class="medal-num">${i + 1}</span>
+              </div>
+              ${badges[i]}
+            </div>
+            <div>
+              <h3>${escapeHtml(displayName(r))}</h3>
+              <div class="id"><span class="id-tag">🪪 ID: ${escapeHtml(String(r.id))}</span></div>
+            </div>
+            <div>
+              <div class="score"><span style="font-size:16px;margin-right:2px">📞</span>${fmt(r.calls)} <span style="font-size:13px;color:var(--muted);font-weight:400">calls</span></div>
+              ${showMoney ? `
+                <div class="podium-payout">
+                  <span>💰</span>
+                  <span>${fmtMoney(earnings)}</span>
+                </div>
+              ` : ""}
+            </div>
+          </article>
+        `;
+      }).join("");
 
       $("count-label").textContent = rows.length + " agents";
       if (!rows.length) {
@@ -813,7 +1221,13 @@
         return;
       }
 
-      const failHead = showFail ? `<th class="right">Failures</th><th class="right">Failure %</th>` : "";
+      // Column Headers
+      const moneyHead = showMoney ? `<th class="right"><span class="th-wrap right">💰 Earnings (₹0.06)</span></th>` : "";
+      const failHead = showFail ? `
+        <th class="right"><span class="th-wrap right">⚠️ Failures</span></th>
+        <th class="right"><span class="th-wrap right">📉 Failure %</span></th>
+      ` : "";
+
       $("board-body").className = "";
       $("board-body").innerHTML = `
         <div class="desktop-table">
@@ -821,46 +1235,107 @@
             <table class="lb">
               <thead>
                 <tr>
-                  <th style="width:70px">Rank</th>
-                  <th>Agent Name</th>
-                  <th>Employee ID</th>
-                  <th class="right">Successful Calls</th>
+                  <th style="width:85px"><span class="th-wrap">🏆 Rank</span></th>
+                  <th><span class="th-wrap">👤 Agent Name</span></th>
+                  <th><span class="th-wrap">🪪 Employee ID</span></th>
+                  <th class="right"><span class="th-wrap right">📞 Successful Calls</span></th>
+                  ${moneyHead}
                   ${failHead}
                 </tr>
               </thead>
               <tbody>
-                ${rows.map((r, i) => `
-                  <tr>
-                    <td>
-                      <span class="rank ${i === 0 ? "rank-top1" : i === 1 ? "rank-top2" : i === 2 ? "rank-top3" : ""}">${i + 1}</span>
-                    </td>
-                    <td style="font-weight:500">${escapeHtml(displayName(r))}</td>
-                    <td class="mono" style="color:var(--muted)">${escapeHtml(String(r.id))}</td>
-                    <td class="right mono" style="font-weight:600">${fmt(r.calls)}</td>
-                    ${showFail ? `<td class="right mono" style="color:var(--muted)">${fmt(r.failures)}</td><td class="right"><span class="fail-pill ${failClass(r.failPct)}">${r.failPct.toFixed(2)}%</span></td>` : ""}
-                  </tr>
-                `).join("")}
+                ${rows.map((r, i) => {
+                  let rankClass = "";
+                  let rankIco = "";
+                  if (i === 0) {
+                    rankClass = "rank-top1";
+                    rankIco = `<span class="rank-ico">👑</span>`;
+                  } else if (i === 1) {
+                    rankClass = "rank-top2";
+                    rankIco = `<span class="rank-ico">🥈</span>`;
+                  } else if (i === 2) {
+                    rankClass = "rank-top3";
+                    rankIco = `<span class="rank-ico">🥉</span>`;
+                  } else if (i < 10) {
+                    rankClass = "rank-top10";
+                    rankIco = `<span class="rank-ico">⭐</span>`;
+                  }
+
+                  const earnings = r.calls * RATE_PER_CALL;
+
+                  return `
+                    <tr>
+                      <td>
+                        <span class="rank ${rankClass}">
+                          ${rankIco}${i + 1}
+                        </span>
+                      </td>
+                      <td>
+                        <div class="agent-cell">
+                          ${agentAvatar(r)}
+                          <span class="agent-name-text">${escapeHtml(displayName(r))}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="id-tag">🪪 ${escapeHtml(String(r.id))}</span>
+                      </td>
+                      <td class="right mono">
+                        <span class="calls-badge">
+                          <span class="calls-ico">📞</span>
+                          <span>${fmt(r.calls)}</span>
+                        </span>
+                      </td>
+                      ${showMoney ? `
+                        <td class="right mono">
+                          <span class="earnings-pill">💰 ${fmtMoney(earnings)}</span>
+                        </td>
+                      ` : ""}
+                      ${showFail ? `
+                        <td class="right mono" style="color:var(--muted)">
+                          ${r.failures > 0 ? "⚠️ " : "✓ "}${fmt(r.failures)}
+                        </td>
+                        <td class="right">
+                          <span class="fail-pill ${failClass(r.failPct)}">${r.failPct.toFixed(2)}%</span>
+                        </td>
+                      ` : ""}
+                    </tr>
+                  `;
+                }).join("")}
               </tbody>
             </table>
           </div>
         </div>
+
         <div class="mobile-list">
-          ${rows.map((r, i) => `
-            <article class="card-row">
-              <div class="card-top">
-                <div>
-                  <strong>${i + 1}. ${escapeHtml(displayName(r))}</strong>
-                  <div class="id" style="color:var(--muted);font-size:12px;margin-top:3px">ID: ${escapeHtml(String(r.id))}</div>
+          ${rows.map((r, i) => {
+            const earnings = r.calls * RATE_PER_CALL;
+            let rankIcon = i === 0 ? "👑" : i === 1 ? "🥈" : i === 2 ? "🥉" : "⭐";
+            return `
+              <article class="card-row">
+                <div class="card-top">
+                  <div class="card-user-info">
+                    <span class="card-rank-badge">${rankIcon} ${i + 1}</span>
+                    ${agentAvatar(r)}
+                    <div>
+                      <strong>${escapeHtml(displayName(r))}</strong>
+                      <div class="id" style="color:var(--muted);font-size:12px;margin-top:2px">🪪 ID: ${escapeHtml(String(r.id))}</div>
+                    </div>
+                  </div>
+                  <div class="card-values">
+                    <div class="mono" style="font-weight:600;font-size:15px">📞 ${fmt(r.calls)} <span style="font-size:11px;color:var(--muted);font-weight:400">calls</span></div>
+                    ${showMoney ? `
+                      <div><span class="mobile-earnings-badge">💰 ${fmtMoney(earnings)}</span></div>
+                    ` : ""}
+                  </div>
                 </div>
-                <div class="mono" style="font-weight:600;font-size:16px">${fmt(r.calls)} <span style="font-size:11px;color:var(--muted);font-weight:400">calls</span></div>
-              </div>
-              <div class="bar"><i style="width:${Math.max(4, (r.calls / state.maxCalls) * 100)}%"></i></div>
-              <div class="meta">
-                <span>${showFail ? fmt(r.failures) + " failed" : "All-time call volume"}</span>
-                ${showFail ? `<span class="fail-pill ${failClass(r.failPct)}">${r.failPct.toFixed(2)}%</span>` : ""}
-              </div>
-            </article>
-          `).join("")}
+                <div class="bar"><i style="width:${Math.max(4, (r.calls / state.maxCalls) * 100)}%"></i></div>
+                <div class="meta">
+                  <span>${showFail ? (r.failures > 0 ? "⚠️ " : "✓ ") + fmt(r.failures) + " failed" : "All-time call volume"}</span>
+                  ${showFail ? `<span class="fail-pill ${failClass(r.failPct)}">${r.failPct.toFixed(2)}%</span>` : (showMoney ? `<span style="color:var(--ok)">Rate: ₹0.06/call</span>` : "")}
+                </div>
+              </article>
+            `;
+          }).join("")}
         </div>
       `;
     }
@@ -871,6 +1346,14 @@
       $("updated").textContent = "Checking for live updates…";
       tryFetchFresh(state.page);
     });
+
+    // Money button toggle event listener
+    $("money-toggle").addEventListener("click", () => {
+      state.showMoney = !state.showMoney;
+      updateMoneyBtnUI();
+      render();
+    });
+
     window.addEventListener("hashchange", load);
 
     if (document.readyState === "loading") {

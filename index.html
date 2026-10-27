@@ -66,14 +66,29 @@
     html {
       background-color: #0b071e;
       min-height: 100%;
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
-    /* Guaranteed Dark Colorful Background with Multi-Layer Ambient Nebula */
+    /* Hardware-Accelerated Layout & Smooth Scrolling Base */
     body {
       margin: 0;
       min-height: 100vh;
       font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       color: var(--text);
+      background-color: #0b071e;
+      letter-spacing: 0.01em;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Fixed hardware-accelerated ambient nebula layer (separate GPU compositor layer, zero scroll repaint) */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
       background-color: #0b071e;
       background-image:
         radial-gradient(1100px 650px at 5% -5%, rgba(168, 85, 247, 0.45), transparent 60%),
@@ -82,11 +97,11 @@
         radial-gradient(850px 600px at 15% 85%, rgba(236, 72, 153, 0.32), transparent 55%),
         radial-gradient(900px 600px at 85% 90%, rgba(16, 185, 129, 0.3), transparent 55%),
         linear-gradient(165deg, #0e0724 0%, #0d1230 30%, #091a33 60%, #081726 85%, #060a16 100%);
-      background-attachment: fixed;
       background-repeat: no-repeat;
       background-size: cover;
-      letter-spacing: 0.01em;
-      overflow-x: hidden;
+      pointer-events: none;
+      transform: translate3d(0, 0, 0);
+      will-change: transform;
     }
 
     button, input, select { font: inherit; color: inherit; }
@@ -102,12 +117,13 @@
       position: sticky;
       top: 0;
       z-index: 20;
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      background: rgba(11, 7, 30, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background: rgba(11, 7, 30, 0.92);
       border-bottom: 1px solid var(--line);
       box-shadow: 0 4px 28px rgba(0, 0, 0, 0.45), 0 0 20px rgba(168, 85, 247, 0.15);
       transition: background 0.3s ease, border-color 0.3s ease;
+      transform: translateZ(0);
     }
 
     .appbar-inner {
@@ -335,7 +351,7 @@
     }
 
     .status-card {
-      background: var(--panel);
+      background: rgba(18, 14, 44, 0.9);
       border: 1px solid var(--line);
       border-radius: var(--radius);
       padding: 18px 22px;
@@ -343,8 +359,6 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
       transition: all 0.3s ease;
     }
 
@@ -387,13 +401,11 @@
     }
 
     .kpi {
-      background: var(--panel);
+      background: rgba(18, 14, 44, 0.9);
       border: 1px solid var(--line);
       border-top: 2px solid rgba(168, 85, 247, 0.5);
       border-radius: 17px;
       padding: 20px;
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
       box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
       transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
       position: relative;
@@ -527,56 +539,22 @@
     }
 
     /* ========================================================
-       SHINE EFFECT ON TOP 3 AGENTS (PODIUM)
+       TOP 3 AGENTS (PODIUM) - GPU ACCELERATED SMOOTH STYLING
        ======================================================== */
     @keyframes shine-sweep {
       0% {
         transform: translateX(-160%) rotate(25deg);
         opacity: 0;
       }
-      10% {
-        opacity: 1;
+      20% {
+        opacity: 0.9;
       }
-      45% {
-        transform: translateX(280%) rotate(25deg);
-        opacity: 1;
+      80% {
+        opacity: 0.9;
       }
-      50%, 100% {
-        transform: translateX(280%) rotate(25deg);
+      100% {
+        transform: translateX(260%) rotate(25deg);
         opacity: 0;
-      }
-    }
-
-    @keyframes gold-halo {
-      0%, 100% {
-        box-shadow: 0 16px 45px rgba(245, 158, 11, 0.32), 0 0 25px rgba(251, 191, 36, 0.2);
-        border-color: rgba(245, 158, 11, 0.6);
-      }
-      50% {
-        box-shadow: 0 22px 65px rgba(245, 158, 11, 0.52), 0 0 45px rgba(253, 224, 71, 0.45);
-        border-color: rgba(254, 240, 138, 0.95);
-      }
-    }
-
-    @keyframes silver-halo {
-      0%, 100% {
-        box-shadow: 0 14px 40px rgba(56, 189, 248, 0.25), 0 0 20px rgba(203, 213, 225, 0.2);
-        border-color: rgba(203, 213, 225, 0.45);
-      }
-      50% {
-        box-shadow: 0 20px 58px rgba(56, 189, 248, 0.42), 0 0 38px rgba(255, 255, 255, 0.4);
-        border-color: rgba(255, 255, 255, 0.85);
-      }
-    }
-
-    @keyframes bronze-halo {
-      0%, 100% {
-        box-shadow: 0 14px 40px rgba(234, 88, 12, 0.25), 0 0 20px rgba(251, 146, 60, 0.2);
-        border-color: rgba(234, 88, 12, 0.45);
-      }
-      50% {
-        box-shadow: 0 20px 58px rgba(234, 88, 12, 0.42), 0 0 38px rgba(251, 146, 60, 0.4);
-        border-color: rgba(253, 186, 116, 0.85);
       }
     }
 
@@ -589,7 +567,7 @@
     }
 
     .place {
-      background: var(--panel);
+      background: rgba(18, 14, 44, 0.92);
       border: 1px solid var(--line);
       border-radius: 20px;
       padding: 24px;
@@ -598,12 +576,11 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      transition: all 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.28s ease, border-color 0.28s ease;
+      transform: translateZ(0);
     }
 
-    /* Metallic Light Beam Sweeping Across the Top 3 Cards */
+    /* Metallic Light Beam Sweeping Across Cards on Hover */
     .place::after {
       content: "";
       position: absolute;
@@ -613,23 +590,22 @@
       height: 260%;
       pointer-events: none;
       z-index: 8;
-      animation: shine-sweep 4s infinite cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .place:hover {
-      transform: translateY(-5px);
+      opacity: 0;
+      transform: translateX(-160%) rotate(25deg);
+      transition: opacity 0.25s ease;
     }
 
     .place:hover::after {
-      animation-duration: 2s;
+      animation: shine-sweep 1.8s ease-in-out;
     }
 
-    /* 1st Place - Radiant Gold Champion with Golden Shine Beam */
+    /* 1st Place - Radiant Gold Champion */
     .place:nth-child(1) {
       order: 2;
       transform: translateY(-10px);
-      background: linear-gradient(180deg, rgba(245, 158, 11, 0.22) 0%, rgba(18, 13, 38, 0.92) 100%);
-      animation: gold-halo 3.5s infinite ease-in-out;
+      background: linear-gradient(180deg, rgba(245, 158, 11, 0.22) 0%, rgba(18, 13, 38, 0.96) 100%);
+      border: 1px solid rgba(245, 158, 11, 0.65);
+      box-shadow: 0 16px 45px rgba(245, 158, 11, 0.35), 0 0 25px rgba(251, 191, 36, 0.22);
     }
 
     .place:nth-child(1)::after {
@@ -641,21 +617,20 @@
         rgba(251, 191, 36, 0.4) 75%,
         transparent 100%
       );
-      box-shadow: 0 0 35px rgba(254, 240, 138, 0.8);
-      animation-delay: 0.2s;
     }
 
     .place:nth-child(1):hover {
       transform: translateY(-16px) scale(1.02);
+      border-color: rgba(254, 240, 138, 0.95);
       box-shadow: 0 28px 70px rgba(245, 158, 11, 0.55), 0 0 50px rgba(254, 240, 138, 0.4);
     }
 
-    /* 2nd Place - Platinum Silver with Icy Shine Beam */
+    /* 2nd Place - Platinum Silver */
     .place:nth-child(2) {
       order: 1;
-      background: linear-gradient(180deg, rgba(56, 189, 248, 0.16) 0%, rgba(18, 13, 38, 0.92) 100%);
-      animation: silver-halo 3.5s infinite ease-in-out;
-      animation-delay: 1.2s;
+      background: linear-gradient(180deg, rgba(56, 189, 248, 0.16) 0%, rgba(18, 13, 38, 0.96) 100%);
+      border: 1px solid rgba(56, 189, 248, 0.5);
+      box-shadow: 0 14px 40px rgba(56, 189, 248, 0.28), 0 0 20px rgba(203, 213, 225, 0.2);
     }
 
     .place:nth-child(2)::after {
@@ -667,21 +642,20 @@
         rgba(226, 232, 240, 0.4) 75%,
         transparent 100%
       );
-      box-shadow: 0 0 35px rgba(255, 255, 255, 0.7);
-      animation-delay: 1.5s;
     }
 
     .place:nth-child(2):hover {
       transform: translateY(-8px) scale(1.015);
+      border-color: rgba(255, 255, 255, 0.85);
       box-shadow: 0 24px 60px rgba(56, 189, 248, 0.4), 0 0 40px rgba(255, 255, 255, 0.35);
     }
 
-    /* 3rd Place - Warm Bronze with Copper Shine Beam */
+    /* 3rd Place - Warm Bronze */
     .place:nth-child(3) {
       order: 3;
-      background: linear-gradient(180deg, rgba(234, 88, 12, 0.18) 0%, rgba(18, 13, 38, 0.92) 100%);
-      animation: bronze-halo 3.5s infinite ease-in-out;
-      animation-delay: 2.4s;
+      background: linear-gradient(180deg, rgba(234, 88, 12, 0.18) 0%, rgba(18, 13, 38, 0.96) 100%);
+      border: 1px solid rgba(234, 88, 12, 0.5);
+      box-shadow: 0 14px 40px rgba(234, 88, 12, 0.28), 0 0 20px rgba(251, 146, 60, 0.2);
     }
 
     .place:nth-child(3)::after {
@@ -693,12 +667,11 @@
         rgba(249, 115, 22, 0.4) 75%,
         transparent 100%
       );
-      box-shadow: 0 0 35px rgba(251, 146, 60, 0.7);
-      animation-delay: 2.7s;
     }
 
     .place:nth-child(3):hover {
       transform: translateY(-8px) scale(1.015);
+      border-color: rgba(253, 186, 116, 0.85);
       box-shadow: 0 24px 60px rgba(234, 88, 12, 0.45), 0 0 40px rgba(251, 146, 60, 0.35);
     }
 
@@ -867,14 +840,13 @@
 
     /* Leaderboard Board & Table */
     .board {
-      background: var(--panel);
+      background: #120e2e;
       border: 1px solid var(--line);
       border-radius: var(--radius);
       overflow: hidden;
       box-shadow: var(--shadow);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
       transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      transform: translateZ(0);
     }
 
     .board:hover {
@@ -944,9 +916,11 @@
       width: 100%;
     }
 
-    /* Enhanced Row Hover Effects */
+    /* Enhanced Row Hover Effects with Virtualized Rendering */
     table.lb tbody tr {
-      transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: background 0.18s ease;
+      content-visibility: auto;
+      contain-intrinsic-size: 0 52px;
     }
 
     table.lb tbody tr:hover td {
@@ -1131,8 +1105,10 @@
       gap: 12px;
       padding: 16px 18px;
       border-bottom: 1px solid var(--line);
-      transition: all 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: background 0.18s ease;
       position: relative;
+      content-visibility: auto;
+      contain-intrinsic-size: 0 94px;
     }
 
     .card-row:hover {
@@ -1226,6 +1202,111 @@
     }
 
     .error { color: var(--danger); }
+
+    /* ========================================================
+       LIVE LOADING SPINNER, SKELETONS & ERROR STATES
+       ======================================================== */
+    .board-loading, .board-error {
+      padding: 64px 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .live-spinner {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 3px solid rgba(168, 85, 247, 0.2);
+      border-top-color: var(--cyan);
+      border-right-color: var(--purple);
+      animation: spin 0.85s infinite linear;
+      margin-bottom: 18px;
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+
+    .loading-sub {
+      font-size: 13px;
+      color: var(--muted);
+      max-width: 440px;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .board-error .error-icon {
+      font-size: 40px;
+      margin-bottom: 14px;
+    }
+
+    .board-error h4 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .board-error p {
+      margin: 0 0 20px;
+      color: var(--muted);
+      font-size: 14px;
+      max-width: 460px;
+      line-height: 1.5;
+    }
+
+    .retry-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--gradient-theme);
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 4px 18px rgba(168, 85, 247, 0.45);
+    }
+
+    .retry-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(6, 182, 212, 0.55);
+    }
+
+    .retry-btn:active {
+      transform: scale(0.97);
+    }
+
+    @keyframes pulse-shimmer {
+      0%, 100% { opacity: 0.35; transform: scale(0.995); }
+      50% { opacity: 0.75; transform: scale(1); }
+    }
+
+    .skeleton-kpi {
+      animation: pulse-shimmer 1.6s infinite ease-in-out;
+      background: rgba(18, 14, 44, 0.65);
+    }
+
+    .skeleton-place {
+      animation: pulse-shimmer 1.6s infinite ease-in-out;
+      min-height: 190px;
+      background: rgba(18, 14, 44, 0.65);
+      border-color: rgba(192, 132, 252, 0.12);
+    }
 
     footer.note {
       margin-top: 24px;
@@ -1346,11 +1427,6 @@
   <script>
     const RATE_PER_CALL = 0.06; // INR per single successful count
 
-    const EMBEDDED_DATA = {
-      live: [{"name": "name not found", "id": "0688", "calls": 17589, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0845", "calls": 10630, "failures": 0, "failPct": 0.0}, {"name": "Ramesh Ragul M", "id": "0354", "calls": 6637, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0776", "calls": 4569, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0761", "calls": 4519, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0771", "calls": 3774, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0550", "calls": 1864, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0765", "calls": 1330, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0742", "calls": 1180, "failures": 16, "failPct": 1.34}, {"name": "name not found", "id": "20.0.0.105", "calls": 975, "failures": 1253, "failPct": 56.24}, {"name": "name not found", "id": "20.0.0.109", "calls": 902, "failures": 1360, "failPct": 60.12}, {"name": "name not found", "id": "20.0.0.111", "calls": 879, "failures": 1788, "failPct": 67.04}, {"name": "name not found", "id": "20.0.0.106", "calls": 829, "failures": 1647, "failPct": 66.52}, {"name": "name not found", "id": "0833", "calls": 723, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.108", "calls": 713, "failures": 1519, "failPct": 68.06}, {"name": "name not found", "id": "20.0.0.110", "calls": 485, "failures": 1019, "failPct": 67.75}, {"name": "name not found", "id": "0630", "calls": 343, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.104", "calls": 311, "failures": 567, "failPct": 64.58}],
-      hist: [{"name": "name not found", "id": "0776", "calls": 182644, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0771", "calls": 180420, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0761", "calls": 172553, "failures": 0, "failPct": 0.0}, {"name": "Ramesh Ragul M", "id": "0354", "calls": 104980, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0688", "calls": 102642, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0845", "calls": 98646, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0550", "calls": 82252, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0630", "calls": 74283, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.108", "calls": 51630, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.106", "calls": 45449, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.105", "calls": 45022, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.111", "calls": 43069, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.104", "calls": 41293, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.112", "calls": 40744, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.113", "calls": 38953, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.109", "calls": 38329, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0632", "calls": 37592, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0863", "calls": 35942, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0637", "calls": 34778, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.102", "calls": 33169, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0768", "calls": 29806, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0593", "calls": 26244, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.110", "calls": 25716, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0634", "calls": 25255, "failures": 0, "failPct": 0.0}, {"name": "Jayaprakash Sharma R", "id": "0011", "calls": 24674, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0841", "calls": 20797, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0846", "calls": 19281, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0765", "calls": 18789, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0776_2", "calls": 17011, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0850", "calls": 14754, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0772", "calls": 9676, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0633", "calls": 9472, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0631", "calls": 9394, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0761_11", "calls": 9075, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0742", "calls": 8522, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0833", "calls": 6749, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "20.0.0.107", "calls": 5927, "failures": 0, "failPct": 0.0}, {"name": "Vignesh Pandian A", "id": "0092", "calls": 2121, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0633_1", "calls": 1065, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0846_pydoll", "calls": 794, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "776", "calls": 784, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "ownbrowser_new_ext", "calls": 750, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0637_PS", "calls": 686, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0772_1", "calls": 625, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0633_2", "calls": 532, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0630_2", "calls": 527, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0633_5", "calls": 441, "failures": 0, "failPct": 0.0}, {"name": "Rajath S", "id": "0044", "calls": 319, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0688_mac", "calls": 309, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0637_z", "calls": 280, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "205.251.180.78", "calls": 225, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "test_us", "calls": 79, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "test_ext", "calls": 71, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "InvisiblePlaywright", "calls": 53, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0633_4", "calls": 40, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0772_sw", "calls": 35, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "Botasaurus_tool", "calls": 18, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "213.161.78.106", "calls": 11, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0846_rayo", "calls": 10, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "get_profile_playwright", "calls": 10, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0741", "calls": 6, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "0846_s", "calls": 3, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "I0033", "calls": 3, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "emp001", "calls": 3, "failures": 0, "failPct": 0.0}, {"name": "name not found", "id": "Zendriver", "calls": 2, "failures": 0, "failPct": 0.0}]
-    };
-
     const SOURCES = {
       live: {
         s3Url: "https://dat-tools.s3.amazonaws.com/swlogs/realtime_SF.html",
@@ -1366,7 +1442,15 @@
       }
     };
 
-    const state = { page: "live", rows: [], maxCalls: 1, showMoney: false };
+    const state = {
+      page: "live",
+      rows: [],
+      loading: false,
+      error: null,
+      maxCalls: 1,
+      showMoney: false,
+      pollTimer: null
+    };
 
     const $ = (id) => document.getElementById(id);
 
@@ -1449,7 +1533,7 @@
           const idx = {
             name: headers.findIndex((h) => h.includes("employee") && h.includes("name")),
             id: headers.findIndex((h) => h.includes("id")),
-            calls: headers.findIndex((h) => h.includes("call")),
+            calls: headers.findIndex((h) => h.includes("call") && !h.includes("fail")),
             fail: headers.findIndex((h) => h.includes("failure") && !h.includes("%")),
             pct: headers.findIndex((h) => h.includes("%"))
           };
@@ -1486,7 +1570,7 @@
       const idx = {
         name: headers.findIndex((h) => h.includes("employee") && h.includes("name")),
         id: headers.findIndex((h) => h.includes("id")),
-        calls: headers.findIndex((h) => h.includes("call")),
+        calls: headers.findIndex((h) => h.includes("call") && !h.includes("fail")),
         fail: headers.findIndex((h) => h.includes("failure") && !h.includes("%")),
         pct: headers.findIndex((h) => h.includes("%"))
       };
@@ -1512,28 +1596,158 @@
       }).filter((r) => r && (r.id || r.calls));
     }
 
-    async function tryFetchFresh(page) {
+    async function fetchWithTimeout(url, timeoutMs = 8000) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const res = await fetch(url, { signal: controller.signal, cache: "no-store" });
+        clearTimeout(timeoutId);
+        return res;
+      } catch (err) {
+        clearTimeout(timeoutId);
+        throw err;
+      }
+    }
+
+    function renderLoading() {
+      $("live-label").textContent = state.page === "live" ? "Connecting to live feed…" : "Loading historical…";
+      $("live-dot").style.background = state.page === "live" ? "var(--ok)" : "var(--gold)";
+      $("updated").textContent = "Fetching live softphone logs from S3…";
+      $("count-label").textContent = "Syncing…";
+
+      // Animated skeleton KPI cards
+      $("kpis").innerHTML = Array(4).fill(0).map(() => `
+        <article class="kpi skeleton-kpi">
+          <span style="opacity:0.6">Connecting…</span>
+          <strong style="opacity:0.6;font-size:22px">—</strong>
+        </article>
+      `).join("");
+
+      // Animated skeleton podium cards
+      $("podium").innerHTML = Array(3).fill(0).map((_, i) => `
+        <article class="place skeleton-place">
+          <div style="opacity:0.4;font-size:13px;padding:36px 0;text-align:center">
+            <div style="font-size:24px;margin-bottom:8px">${i === 0 ? "👑" : i === 1 ? "🥈" : "🥉"}</div>
+            Connecting to live feed…
+          </div>
+        </article>
+      `).join("");
+
+      // Loading spinner inside Board
+      $("board-body").className = "";
+      $("board-body").innerHTML = `
+        <div class="board-loading">
+          <div class="live-spinner"></div>
+          <div class="loading-title">Streaming Live Softphone Logs</div>
+          <p class="loading-sub">Connecting directly to Amazon S3 realtime call operations feed…</p>
+        </div>
+      `;
+    }
+
+    function renderError() {
+      $("live-dot").style.background = "var(--danger)";
+      $("live-label").textContent = "Stream offline";
+      $("updated").textContent = "Could not connect to S3 log stream";
+      $("count-label").textContent = "0 agents";
+
+      $("kpis").innerHTML = `
+        <article class="kpi" style="border-top-color:var(--danger)">
+          <span>Feed Status</span>
+          <strong style="color:var(--danger);font-size:20px">⚠️ Stream Offline</strong>
+        </article>
+      `;
+      $("podium").innerHTML = "";
+
+      $("board-body").className = "";
+      $("board-body").innerHTML = `
+        <div class="board-error">
+          <div class="error-icon">📡</div>
+          <h4>Unable to Connect to Live Feed</h4>
+          <p>Could not retrieve the real-time call logs from Amazon S3. Please verify your internet connection and retry.</p>
+          <button class="retry-btn" type="button" id="btn-retry">🔄 Retry Connection</button>
+        </div>
+      `;
+      const retry = $("btn-retry");
+      if (retry) {
+        retry.addEventListener("click", () => fetchLiveData(state.page));
+      }
+    }
+
+    async function fetchLiveData(page) {
+      state.loading = true;
+      state.error = null;
+      renderLoading();
+
       const src = SOURCES[page];
       const targetUrl = src.s3Url;
-      const proxies = [
-        "https://r.jina.ai/" + targetUrl
+      const cacheBuster = "_t=" + Date.now();
+      const sep = targetUrl.includes("?") ? "&" : "?";
+      const freshTargetUrl = targetUrl + sep + cacheBuster;
+
+      const endpoints = [
+        freshTargetUrl,
+        "https://r.jina.ai/" + targetUrl + sep + cacheBuster,
+        "https://api.allorigins.win/raw?url=" + encodeURIComponent(freshTargetUrl)
       ];
 
-      for (const endpoint of proxies) {
+      for (const endpoint of endpoints) {
         try {
-          const res = await fetch(endpoint, { cache: "no-store" });
-          if (res.ok) {
+          const res = await fetchWithTimeout(endpoint, 8000);
+          if (res && res.ok) {
             const text = await res.text();
             const parsed = parseMarkdownOrHtml(text);
-            if (parsed.length) {
+            if (parsed && parsed.length > 0) {
               state.rows = parsed;
-              $("updated").textContent = "Live stream updated (" + new Date().toLocaleTimeString() + ")";
+              state.loading = false;
+              state.lastUpdated = new Date();
+              const timeStr = state.lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+              $("updated").textContent = `Live stream active (${timeStr}) • ${parsed.length} agents reporting`;
+              $("live-label").textContent = src.live ? "Live feed active" : "Historical record";
+              $("live-dot").style.background = src.live ? "var(--ok)" : "var(--gold)";
               render();
               return;
             }
           }
         } catch (e) {
-          // Continue gracefully
+          // Continue to next endpoint fallback
+        }
+      }
+
+      state.loading = false;
+      state.error = "Connection failed";
+      renderError();
+    }
+
+    async function fetchLiveDataSilent(page) {
+      if (state.loading) return;
+      const src = SOURCES[page];
+      const targetUrl = src.s3Url;
+      const cacheBuster = "_t=" + Date.now();
+      const sep = targetUrl.includes("?") ? "&" : "?";
+      const freshTargetUrl = targetUrl + sep + cacheBuster;
+
+      const endpoints = [
+        freshTargetUrl,
+        "https://r.jina.ai/" + targetUrl + sep + cacheBuster
+      ];
+
+      for (const endpoint of endpoints) {
+        try {
+          const res = await fetchWithTimeout(endpoint, 8000);
+          if (res && res.ok) {
+            const text = await res.text();
+            const parsed = parseMarkdownOrHtml(text);
+            if (parsed && parsed.length > 0) {
+              state.rows = parsed;
+              state.lastUpdated = new Date();
+              const timeStr = state.lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+              $("updated").textContent = `Live stream active (${timeStr}) • ${parsed.length} agents reporting`;
+              render();
+              return;
+            }
+          }
+        } catch (e) {
+          // Continue silently
         }
       }
     }
@@ -1543,12 +1757,15 @@
       state.page = page;
       const src = SOURCES[page];
 
+      if (state.pollTimer) {
+        clearInterval(state.pollTimer);
+        state.pollTimer = null;
+      }
+
       $("tab-live").classList.toggle("active", page === "live");
       $("tab-hist").classList.toggle("active", page === "hist");
       $("page-title").textContent = src.title;
       $("page-copy").textContent = src.copy;
-      $("live-label").textContent = src.live ? "Live feed" : "Historical snapshot";
-      $("live-dot").style.background = src.live ? "var(--ok)" : "var(--gold)";
       $("direct-s3-link").href = src.s3Url;
       $("footer-s3-link").href = src.s3Url;
       $("footer-s3-link").textContent = src.s3Url.replace(/^https?:\/\//, "");
@@ -1558,19 +1775,17 @@
       if (page === "hist" && $("sort").value === "fail") $("sort").value = "calls";
 
       $("search").value = "";
-      $("board-body").className = "loading";
-      $("board-body").textContent = "Loading leaderboard…";
-
-      // Synchronize money button UI
       updateMoneyBtnUI();
 
-      // 1. Immediately render embedded data (0ms, 100% reliable)
-      state.rows = [...(EMBEDDED_DATA[page] || [])];
-      $("updated").textContent = "Live feed ready • " + state.rows.length + " agents";
-      render();
+      // Directly fetch live data from stream (NO EMBEDDED DATA)
+      fetchLiveData(page);
 
-      // 2. Proactively try fetching fresh updates
-      tryFetchFresh(page);
+      // Setup live background polling every 45s
+      state.pollTimer = setInterval(() => {
+        if (document.visibilityState === "visible") {
+          fetchLiveDataSilent(state.page);
+        }
+      }, 45000);
     }
 
     function filtered() {
@@ -1810,8 +2025,7 @@
     $("search").addEventListener("input", render);
     $("sort").addEventListener("change", render);
     $("refresh").addEventListener("click", () => {
-      $("updated").textContent = "Checking for live updates…";
-      tryFetchFresh(state.page);
+      fetchLiveData(state.page);
     });
 
     // Money button toggle event listener

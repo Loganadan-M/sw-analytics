@@ -1596,23 +1596,50 @@
       }).filter((r) => r && (r.id || r.calls));
     }
 
-    async function fetchWithTimeout(url, timeoutMs = 8000) {
+    let activeFetchController = null;
+    let activeFetchSeq = 0;
+    let activeSilentController = null;
+
+    async function fetchWithTimeout(url, timeoutMs = 8000, externalSignal = null) {
+      if (externalSignal && externalSignal.aborted) {
+        throw new DOMException("The operation was aborted", "AbortError");
+      }
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+      let signal = controller.signal;
+      let onExternalAbort = null;
+
+      if (externalSignal) {
+        if (typeof AbortSignal.any === "function") {
+          signal = AbortSignal.any([controller.signal, externalSignal]);
+        } else {
+          onExternalAbort = () => controller.abort();
+          externalSignal.addEventListener("abort", onExternalAbort, { once: true });
+        }
+      }
+
       try {
-        const res = await fetch(url, { signal: controller.signal, cache: "no-store" });
+        const res = await fetch(url, { signal, cache: "no-store" });
         clearTimeout(timeoutId);
+        if (onExternalAbort && externalSignal) {
+          externalSignal.removeEventListener("abort", onExternalAbort);
+        }
         return res;
       } catch (err) {
         clearTimeout(timeoutId);
+        if (onExternalAbort && externalSignal) {
+          externalSignal.removeEventListener("abort", onExternalAbort);
+        }
         throw err;
       }
     }
 
     function renderLoading() {
-      $("live-label").textContent = state.page === "live" ? "Connecting to live feed…" : "Loading historical…";
-      $("live-dot").style.background = state.page === "live" ? "var(--ok)" : "var(--gold)";
-      $("updated").textContent = "Fetching live softphone logs from S3…";
+      const isLive = state.page === "live";
+      $("live-label").textContent = isLive ? "Connecting to live feed…" : "Loading historical…";
+      $("live-dot").style.background = isLive ? "var(--ok)" : "var(--gold)";
+      $("updated").textContent = isLive ? "Fetching live softphone logs from S3…" : "Fetching historical logs from S3…";
       $("count-label").textContent = "Syncing…";
 
       // Animated skeleton KPI cards
@@ -1628,7 +1655,7 @@
         <article class="place skeleton-place">
           <div style="opacity:0.4;font-size:13px;padding:36px 0;text-align:center">
             <div style="font-size:24px;margin-bottom:8px">${i === 0 ? "👑" : i === 1 ? "🥈" : "🥉"}</div>
-            Connecting to live feed…
+            ${isLive ? "Connecting to live feed…" : "Loading historical analytics…"}
           </div>
         </article>
       `).join("");
@@ -1638,13 +1665,15 @@
       $("board-body").innerHTML = `
         <div class="board-loading">
           <div class="live-spinner"></div>
-          <div class="loading-title">Streaming Live Softphone Logs</div>
-          <p class="loading-sub">Connecting directly to Amazon S3 realtime call operations feed…</p>
+          <div class="loading-title">${isLive ? "Streaming Live Softphone Logs" : "Loading Historical Softphone Analytics"}</div>
+          <p class="loading-sub">${isLive ? "Connecting directly to Amazon S3 realtime call operations feed…" : "Connecting directly to Amazon S3 historical call analytics archive…"}</p>
         </div>
       `;
     }
 
     function renderError() {
+      if (state.page !== currentPage()) return;
+      const isLive = state.page === "live";
       $("live-dot").style.background = "var(--danger)";
       $("live-label").textContent = "Stream offline";
       $("updated").textContent = "Could not connect to S3 log stream";
@@ -1662,8 +1691,8 @@
       $("board-body").innerHTML = `
         <div class="board-error">
           <div class="error-icon">📡</div>
-          <h4>Unable to Connect to Live Feed</h4>
-          <p>Could not retrieve the real-time call logs from Amazon S3. Please verify your internet connection and retry.</p>
+          <h4>Unable to Connect to ${isLive ? "Live Feed" : "Historical Archive"}</h4>
+          <p>Could not retrieve the call logs from Amazon S3. Please verify your internet connection and retry.</p>
           <button class="retry-btn" type="button" id="btn-retry">🔄 Retry Connection</button>
         </div>
       `;
@@ -1674,6 +1703,20 @@
     }
 
     async function fetchLiveData(page) {
+      if (activeFetchController) {
+        activeFetchController.abort();
+        activeFetchController = null;
+      }
+      if (activeSilentController) {
+        activeSilentController.abort();
+        activeSilentController = null;
+      }
+
+      const seq = ++activeFetchSeq;
+      const controller = new AbortController();
+      activeFetchController = controller;
+      const signal = controller.signal;
+
       state.loading = true;
       state.error = null;
       renderLoading();
@@ -1691,17 +1734,32 @@
       ];
 
       for (const endpoint of endpoints) {
+        if (signal.aborted || seq !== activeFetchSeq || state.page !== page) {
+          return;
+        }
+
         try {
-          const res = await fetchWithTimeout(endpoint, 8000);
+          const res = await fetchWithTimeout(endpoint, 8000, signal);
+          if (signal.aborted || seq !== activeFetchSeq || state.page !== page) {
+            return;
+          }
+
           if (res && res.ok) {
             const text = await res.text();
+            if (signal.aborted || seq !== activeFetchSeq || state.page !== page) {
+              return;
+            }
+
             const parsed = parseMarkdownOrHtml(text);
             if (parsed && parsed.length > 0) {
+              if (signal.aborted || seq !== activeFetchSeq || state.page !== page) {
+                return;
+              }
               state.rows = parsed;
               state.loading = false;
               state.lastUpdated = new Date();
               const timeStr = state.lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-              $("updated").textContent = `Live stream active (${timeStr}) • ${parsed.length} agents reporting`;
+              $("updated").textContent = `${src.live ? "Live stream active" : "Historical archive active"} (${timeStr}) • ${parsed.length} agents reporting`;
               $("live-label").textContent = src.live ? "Live feed active" : "Historical record";
               $("live-dot").style.background = src.live ? "var(--ok)" : "var(--gold)";
               render();
@@ -1709,8 +1767,15 @@
             }
           }
         } catch (e) {
+          if (signal.aborted || seq !== activeFetchSeq || state.page !== page) {
+            return;
+          }
           // Continue to next endpoint fallback
         }
+      }
+
+      if (signal.aborted || seq !== activeFetchSeq || state.page !== page) {
+        return;
       }
 
       state.loading = false;
@@ -1719,7 +1784,18 @@
     }
 
     async function fetchLiveDataSilent(page) {
-      if (state.loading) return;
+      if (state.loading || state.page !== page || page !== "live") return;
+
+      if (activeSilentController) {
+        activeSilentController.abort();
+        activeSilentController = null;
+      }
+
+      const seq = activeFetchSeq;
+      const controller = new AbortController();
+      activeSilentController = controller;
+      const signal = controller.signal;
+
       const src = SOURCES[page];
       const targetUrl = src.s3Url;
       const cacheBuster = "_t=" + Date.now();
@@ -1732,12 +1808,27 @@
       ];
 
       for (const endpoint of endpoints) {
+        if (signal.aborted || state.loading || seq !== activeFetchSeq || state.page !== page) {
+          return;
+        }
+
         try {
-          const res = await fetchWithTimeout(endpoint, 8000);
+          const res = await fetchWithTimeout(endpoint, 8000, signal);
+          if (signal.aborted || state.loading || seq !== activeFetchSeq || state.page !== page) {
+            return;
+          }
+
           if (res && res.ok) {
             const text = await res.text();
+            if (signal.aborted || state.loading || seq !== activeFetchSeq || state.page !== page) {
+              return;
+            }
+
             const parsed = parseMarkdownOrHtml(text);
             if (parsed && parsed.length > 0) {
+              if (signal.aborted || state.loading || seq !== activeFetchSeq || state.page !== page) {
+                return;
+              }
               state.rows = parsed;
               state.lastUpdated = new Date();
               const timeStr = state.lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
@@ -1747,6 +1838,9 @@
             }
           }
         } catch (e) {
+          if (signal.aborted || state.loading || seq !== activeFetchSeq || state.page !== page) {
+            return;
+          }
           // Continue silently
         }
       }
@@ -1755,11 +1849,17 @@
     function load() {
       const page = currentPage();
       state.page = page;
+      state.rows = []; // Clear rows on page change to avoid leaking stale records from previous tab
       const src = SOURCES[page];
 
       if (state.pollTimer) {
         clearInterval(state.pollTimer);
         state.pollTimer = null;
+      }
+
+      if (activeSilentController) {
+        activeSilentController.abort();
+        activeSilentController = null;
       }
 
       $("tab-live").classList.toggle("active", page === "live");
@@ -1780,12 +1880,14 @@
       // Directly fetch live data from stream (NO EMBEDDED DATA)
       fetchLiveData(page);
 
-      // Setup live background polling every 45s
-      state.pollTimer = setInterval(() => {
-        if (document.visibilityState === "visible") {
-          fetchLiveDataSilent(state.page);
-        }
-      }, 45000);
+      // Setup live background polling every 45s (only on live page)
+      if (page === "live") {
+        state.pollTimer = setInterval(() => {
+          if (document.visibilityState === "visible" && state.page === "live") {
+            fetchLiveDataSilent("live");
+          }
+        }, 45000);
+      }
     }
 
     function filtered() {
@@ -1804,6 +1906,7 @@
     }
 
     function render() {
+      if (state.loading && state.rows.length === 0) return;
       const rows = filtered();
       const showFail = state.page === "live";
       const showMoney = state.showMoney;
